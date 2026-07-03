@@ -1,0 +1,161 @@
+.wrapper {
+  position: relative;
+  height: 200vh;
+  margin-bottom: 0;
+}
+
+/* Zero-size scroll target for the "About" nav link. Sits at the scroll depth
+   (~90% of the hero's scroll range) where the about copy has faded in. */
+.aboutAnchor {
+  position: absolute;
+  top: 90vh;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Promote to its own layer so the per-frame background-color paint stays
+     isolated from the rest of the page. */
+  will-change: background-color;
+  transform: translateZ(0);
+}
+
+.about {
+  position: absolute;
+  top: 42vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gl-space-lg);
+  text-align: center;
+  padding: 0 var(--gl-space-4xl);
+}
+
+.aboutEyebrow {
+  font-size: 1.8rem;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.aboutCopy {
+  max-width: 72rem;
+  font-size: 3.2rem;
+  font-weight: var(--gl-font-weight-medium);
+  line-height: 1.4;
+  color: var(--gl-color-on-surface);
+}
+
+@media (width < 900px) {
+  .about { top: 40vh; padding: 0 var(--gl-space-xl); }
+  .aboutCopy { font-size: 2.2rem; }
+  .aboutEyebrow { font-size: 1.4rem; }
+}
+
+.videoFrame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transform-origin: 50% 0%;
+  box-shadow: 0 4rem 8rem rgba(0, 0, 0, 0.25);
+  will-change: transform;
+  /* Own compositor layer so scaling the frame is a pure GPU transform and
+     doesn't repaint the sticky background behind it each frame. */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Keep the video on its own layer so decoded frames aren't re-rasterised
+     while the parent scales. */
+  transform: translateZ(0);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+}
+
+.caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gl-space-lg);
+  text-align: center;
+  color: var(--gl-color-white);
+  padding: 0 var(--gl-space-xl);
+  pointer-events: none;
+}
+
+.eyebrow {
+  font-size: 1.3rem;
+  font-weight: var(--gl-font-weight-medium);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.title {
+  max-width: 90rem;
+  font-size: 7.2rem;
+  font-weight: var(--gl-font-weight-regular);
+  line-height: 1.12;
+}
+
+.subtitle {
+  max-width: 54rem;
+  font-size: 2.2rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.scrollCue {
+  position: absolute;
+  bottom: var(--gl-space-3xl);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gl-space-md);
+  color: var(--gl-color-white);
+}
+.scrollCue span {
+  font-size: 1.2rem;
+  font-weight: var(--gl-font-weight-medium);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.scrollTick {
+  display: block;
+  width: 1px;
+  height: 4rem;
+  background: rgba(255, 255, 255, 0.6);
+  transform-origin: top;
+}
+
+@media (width < 900px) {
+  .title { font-size: 3.6rem; }
+  .subtitle { font-size: 1.6rem; }
+}

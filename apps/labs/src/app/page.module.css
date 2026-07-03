@@ -1,0 +1,6 @@
+.section {
+  max-width: var(--gl-content-max-width);
+  margin: 0 auto;
+  padding: var(--gl-space-5xl) var(--gl-inset);
+}
+

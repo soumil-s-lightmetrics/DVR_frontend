@@ -1,0 +1,120 @@
+.card {
+  padding: 0 0 var(--gl-space-4xl);
+  margin-top: -6rem;
+}
+
+.title {
+  font-size: 6.4rem;
+  font-weight: var(--gl-font-weight-medium);
+  text-align: center;
+  margin-bottom: var(--gl-space-lg);
+}
+
+.subtitle {
+  font-size: 1.6rem;
+  color: var(--gl-color-on-surface-subtle);
+  text-align: center;
+  max-width: 52rem;
+  margin: 0 auto var(--gl-space-4xl);
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gl-space-xl);
+  max-width: 76rem;
+  margin: 0 auto;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gl-space-xl);
+}
+@media (width < 700px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gl-space-sm);
+}
+
+.label {
+  font-size: 1.4rem;
+  font-weight: var(--gl-font-weight-medium);
+  color: var(--gl-color-on-surface);
+}
+
+.required {
+  color: #818cf8;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.5rem;
+  color: var(--gl-color-on-surface);
+  background: var(--gl-color-white);
+  border: 1px solid var(--gl-color-border);
+  border-radius: 1.2rem;
+  padding: 1.4rem 1.8rem;
+  transition: border-color var(--gl-transition-base);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--gl-color-gray-muted);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--gl-color-on-surface);
+}
+
+.selectWrap {
+  position: relative;
+  display: flex;
+}
+
+.select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 4.4rem;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 1.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.8rem;
+  height: 1.8rem;
+  color: var(--gl-color-gray-dim);
+  pointer-events: none;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 14rem;
+  line-height: 1.5;
+}
+
+.submit {
+  align-self: center;
+  margin-top: var(--gl-space-sm);
+}
+
+.success {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: var(--gl-font-weight-medium);
+  color: var(--gl-color-on-surface);
+  padding: var(--gl-space-3xl) 0;
+}

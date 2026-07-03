@@ -1,0 +1,36 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gl-space-2xs);
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: var(--gl-font-weight-medium);
+  line-height: 1;
+  padding: 1.4rem 2.4rem;
+  border-radius: var(--gl-radius-pill);
+  border: var(--gl-action-border-width) solid transparent;
+  cursor: pointer;
+  transition: background-color var(--gl-transition-base), color var(--gl-transition-base), border-color var(--gl-transition-base), transform var(--gl-transition-fast);
+  white-space: nowrap;
+}
+.button:active { transform: scale(0.97); }
+
+.filled {
+  background: var(--gl-color-on-surface);
+  color: var(--gl-color-surface);
+}
+.filled:hover { background: var(--gl-color-black); }
+
+.outline {
+  background: transparent;
+  border-color: var(--gl-color-on-surface);
+  color: var(--gl-color-on-surface);
+}
+.outline:hover { background: var(--gl-color-on-surface); color: var(--gl-color-surface); }
+
+.ghost {
+  background: transparent;
+  color: var(--gl-color-on-surface);
+}
+.ghost:hover { background: var(--gl-color-border); }

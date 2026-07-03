@@ -1,0 +1,152 @@
+/*
+  Design tokens extracted directly from labs.google's shipped stylesheet
+  (styles-3NEYF3LM.css) on 2026-07-02. These are the real CSS custom
+  properties Google Labs uses — reused here as the shared theme for every
+  site in this monorepo via @lmlabs/ui.
+*/
+:root {
+  /* base surface + text colors */
+  --gl-color-white: #fff;
+  --gl-color-black: #000;
+  --gl-color-surface: #F3EFEA;
+  --gl-color-surface-dark: #1A1A1A;
+  --gl-color-surface-muted: #dadada;
+  --gl-color-on-surface: #323232;
+  --gl-color-on-surface-subtle: rgba(50, 50, 50, .8);
+  --gl-color-on-surface-inverse: #D1D1D1;
+  --gl-color-on-surface-contrast: #1A1A1A;
+  --gl-color-border: #E8DFD5;
+  --gl-color-gray-muted: #9AA0A6;
+  --gl-color-gray-dim: #75777B;
+  --gl-color-outline-dark: rgba(255, 255, 255, .15);
+
+  /* default "category" theme (neutral) */
+  --gl-cat-accent: #DDD3C7;
+  --gl-cat-accent-soft: #E8DFD5;
+  --gl-cat-bg: #F3EFEA;
+  --gl-cat-bg-alt: #F3EFEA;
+  --gl-cat-fill: #323232;
+  --gl-cat-on-accent: var(--gl-color-black);
+  --gl-cat-on-accent-soft: var(--gl-color-on-surface);
+  --gl-cat-accent-on-dark: var(--gl-cat-accent);
+
+  /* layout */
+  --gl-inset: 2.4rem;
+  --gl-content-max-width: 187.2rem;
+  --gl-anchor-offset: 4rem;
+  --gl-radius-card: 2.4rem;
+  --gl-radius-pill: 999rem;
+  --gl-action-border-width: .2rem;
+
+  /* spacing scale */
+  --gl-space-3xs: .4rem;
+  --gl-space-2xs: .8rem;
+  --gl-space-xs: 1rem;
+  --gl-space-sm: 1.2rem;
+  --gl-space-md: 1.6rem;
+  --gl-space-lg: 2rem;
+  --gl-space-xl: 2.4rem;
+  --gl-space-2xl: 3rem;
+  --gl-space-3xl: 4rem;
+  --gl-space-4xl: 4.8rem;
+  --gl-space-5xl: 6rem;
+  --gl-space-6xl: 9.6rem;
+
+  /* motion */
+  --gl-transition-fast: .12s ease;
+  --gl-transition-base: .2s ease;
+
+  /* type */
+  --gl-font-weight-light: 300;
+  --gl-font-weight-regular: 400;
+  --gl-font-weight-medium: 500;
+  --gl-font-weight-bold: 700;
+}
+
+/* Category themes — Create / Develop / Explore / Learn */
+.gl-cat-create {
+  --gl-cat-accent: #FFBDF9;
+  --gl-cat-accent-soft: #FFDDFD;
+  --gl-cat-bg: #FFF8FE;
+  --gl-cat-bg-alt: #FFF1FE;
+  --gl-cat-fill: #F267EB;
+}
+.gl-cat-develop {
+  --gl-cat-accent: #48F08B;
+  --gl-cat-accent-soft: #3C3C3C;
+  --gl-cat-bg: #1A1A1A;
+  --gl-cat-bg-alt: #232323;
+  --gl-cat-fill: #48F08B;
+  --gl-cat-on-accent-soft: #F3EFEA;
+  --gl-color-on-surface: #F3EFEA;
+  --gl-color-on-surface-subtle: rgba(243, 239, 234, .7);
+}
+.gl-cat-learn {
+  --gl-cat-accent: #5E9BFF;
+  --gl-cat-accent-soft: #CCDCFF;
+  --gl-cat-bg: #EFF5FF;
+  --gl-cat-bg-alt: #EFF5FF;
+  --gl-cat-fill: #1B4EA1;
+  --gl-cat-on-accent: var(--gl-color-white);
+  --gl-cat-accent-on-dark: #85B3FF;
+}
+.gl-cat-explore {
+  --gl-cat-accent: #FCC934;
+  --gl-cat-accent-soft: #FFE28D;
+  --gl-cat-bg: #FEF7E0;
+  --gl-cat-bg-alt: #FFF4EE;
+  --gl-cat-fill: #F9AB00;
+}
+
+.shape--hexagon { color: #48f08b; }
+.shape--circle { color: #5e9bff; }
+.shape--square { color: #ffbdf9; }
+.shape--clover { color: #fcc934; }
+
+@keyframes gl-float-x {
+  0%, to { transform: translate(0); }
+  25% { transform: translate(var(--gl-float-amp-x)); }
+  75% { transform: translate(calc(var(--gl-float-amp-x) * -1)); }
+}
+@keyframes gl-float-y {
+  0%, to { transform: translate(0); }
+  25% { transform: translateY(var(--gl-float-amp-y)); }
+  75% { transform: translateY(calc(var(--gl-float-amp-y) * -1)); }
+}
+@keyframes gl-float-r {
+  0%, to { transform: rotate(0); }
+  25% { transform: rotate(var(--gl-float-amp-r)); }
+  75% { transform: rotate(calc(var(--gl-float-amp-r) * -1)); }
+}
+.gl-float .shape {
+  --gl-float-duration: 11s;
+  --gl-float-amp-x: .8rem;
+  --gl-float-amp-y: 1.6rem;
+  --gl-float-amp-r: 3deg;
+  --gl-float-delay: 0s;
+  --gl-float-phase: 0s;
+  --gl-float-state: running;
+  animation:
+    gl-float-x var(--gl-float-duration) ease-in-out calc(var(--gl-float-delay) + var(--gl-float-phase)) infinite,
+    gl-float-y calc(var(--gl-float-duration) * 1.83) ease-in-out calc(var(--gl-float-delay) + var(--gl-float-phase) * .6) infinite,
+    gl-float-r calc(var(--gl-float-duration) * 1.45) ease-in-out calc(var(--gl-float-delay) + var(--gl-float-phase)) infinite;
+  animation-composition: add;
+  animation-play-state: var(--gl-float-state);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl-float .shape { animation: none; }
+}
+
+html {
+  font-family: "Google Sans", Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 62.5%;
+  overflow-x: clip;
+}
+*, *:before, *:after { box-sizing: inherit; }
+* { margin: 0; padding: 0; }
+html, body { height: 100%; }
+ul { list-style-type: none; }
+a { text-decoration: none; color: inherit; }

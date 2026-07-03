@@ -1,0 +1,33 @@
+.pill {
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: var(--gl-font-weight-medium);
+  padding: 1rem 2rem;
+  border-radius: var(--gl-radius-pill);
+  border: var(--gl-action-border-width) solid var(--gl-color-border);
+  background: var(--gl-color-white);
+  color: var(--gl-color-on-surface);
+  cursor: pointer;
+  transition: border-color var(--gl-transition-base);
+}
+.pill:hover { border-color: var(--gl-color-on-surface); }
+
+.activeBg {
+  position: absolute;
+  inset: 0;
+  background: var(--gl-color-on-surface);
+  border-radius: var(--gl-radius-pill);
+  z-index: 0;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+}
+
+.active {
+  border-color: var(--gl-color-on-surface);
+  color: var(--gl-color-surface);
+}
