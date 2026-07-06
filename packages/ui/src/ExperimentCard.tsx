@@ -12,13 +12,16 @@ export interface ExperimentCardProps {
   description: string;
   cta: string;
   href?: string;
+  target?: string;
   media?: ReactNode;
 }
 
-export function ExperimentCard({ category, title, description, cta, href = "#", media }: ExperimentCardProps) {
+export function ExperimentCard({ category, title, description, cta, href = "#", target, media }: ExperimentCardProps) {
   return (
     <motion.a
       href={href}
+      target={target}
+      rel={target === "_blank" ? "noopener noreferrer" : undefined}
       className={`${styles.card} gl-cat-${category}`}
       whileHover={{ y: -8 }}
       whileTap={{ scale: 0.98 }}

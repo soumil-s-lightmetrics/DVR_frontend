@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Play, Layout, Sparkles, Terminal, BarChart3 } from "lucide-react";
+import { Layout, Terminal, BarChart3 } from "lucide-react";
 import { ExperimentCard, type ExperimentCardProps } from "@lmlabs/ui";
+
+// URL of the deployed mounting-verification app. In dev it runs on :3001;
+// set NEXT_PUBLIC_MOUNTING_VERIFICATION_URL in prod (e.g. its Amplify domain).
+const MOUNTING_VERIFICATION_URL =
+  process.env.NEXT_PUBLIC_MOUNTING_VERIFICATION_URL || "http://localhost:3001";
 
 const FEATURED: ExperimentCardProps[] = [
   {
@@ -54,24 +59,19 @@ const FEATURED: ExperimentCardProps[] = [
     ),
   },
   {
-    category: "create",
-    title: "Google Flow Music",
-    description: "Generate original soundtracks to match your Flow creations.",
-    cta: "Learn more",
+    category: "explore",
+    title: "Mounting Verification",
+    description: "Upload a dashcam image and instantly check if the camera is mounted correctly for video evidence and ADAS.",
+    cta: "Try it now",
+    href: MOUNTING_VERIFICATION_URL,
+    target: "_blank",
     media: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-sky-100 via-blue-100 to-indigo-100 p-6">
-        <div className="flex h-full w-[70%] flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border-4 border-neutral-900/90 bg-white p-4 shadow-2xl">
-          <Sparkles className="h-5 w-5 text-blue-500" />
-          <div className="flex items-end gap-1">
-            {[6, 12, 8, 16, 10, 14, 7, 11].map((h, i) => (
-              <span key={i} className="w-1 rounded-full bg-blue-400" style={{ height: `${h * 2}px` }} />
-            ))}
-          </div>
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900">
-            <Play className="h-3.5 w-3.5 fill-white text-white" />
-          </span>
-        </div>
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/mounting-verification.svg"
+        alt="Dashcam mounting preview"
+        className="h-full w-full object-cover"
+      />
     ),
   },
   {
@@ -140,7 +140,7 @@ export function ExperimentsShowcase() {
   const bottomRow = FEATURED.slice(2, 5);
 
   return (
-    <section id="experiments" className="relative pt-24 pb-32">
+    <section id="experiments" className="relative pt-8 pb-32">
       <div
         aria-hidden
         className="pointer-events-none absolute -bottom-32 left-0 h-[416px] w-[416px] rounded-full bg-indigo-300/50 blur-[80px]"

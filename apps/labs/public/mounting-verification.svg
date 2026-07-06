@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="Dashcam road view with mounting alignment overlay">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bfe6ea"/>
+      <stop offset="1" stop-color="#eaf7f7"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b7280"/>
+      <stop offset="1" stop-color="#374151"/>
+    </linearGradient>
+    <linearGradient id="hood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f2937"/>
+      <stop offset="1" stop-color="#0b1120"/>
+    </linearGradient>
+    <clipPath id="frame">
+      <rect x="0" y="0" width="400" height="300" rx="8"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <!-- sky -->
+    <rect x="0" y="0" width="400" height="150" fill="url(#sky)"/>
+    <!-- distant tree line -->
+    <path d="M0 150 Q 60 128 120 146 T 240 140 T 400 150 V150 H0 Z" fill="#cfe9d8"/>
+    <!-- sun glow -->
+    <circle cx="312" cy="70" r="34" fill="#ffffff" opacity="0.55"/>
+
+    <!-- road -->
+    <polygon points="0,300 400,300 250,150 150,150" fill="url(#road)"/>
+    <!-- side verges -->
+    <polygon points="0,300 150,150 130,150 0,270" fill="#4b5563"/>
+    <polygon points="400,300 250,150 270,150 400,270" fill="#4b5563"/>
+
+    <!-- centre dashed lane markings -->
+    <g fill="#f8fafc">
+      <polygon points="197,168 203,168 205,182 195,182"/>
+      <polygon points="194,196 206,196 209,216 191,216"/>
+      <polygon points="190,232 210,232 214,258 186,258"/>
+      <polygon points="185,272 215,272 220,300 180,300"/>
+    </g>
+    <!-- edge lane lines -->
+    <polygon points="150,150 152,150 92,300 78,300" fill="#e5e7eb" opacity="0.8"/>
+    <polygon points="248,150 250,150 322,300 308,300" fill="#e5e7eb" opacity="0.8"/>
+
+    <!-- car hood -->
+    <path d="M0 300 Q 200 250 400 300 L400 300 L0 300 Z" fill="url(#hood)"/>
+
+    <!-- ADAS alignment overlay -->
+    <!-- horizon guide -->
+    <line x1="0" y1="150" x2="400" y2="150" stroke="#2998A2" stroke-width="2" stroke-dasharray="8 6"/>
+    <!-- vanishing point crosshair (centered = good mount) -->
+    <circle cx="200" cy="150" r="16" fill="none" stroke="#8B2682" stroke-width="2.5"/>
+    <line x1="200" y1="128" x2="200" y2="172" stroke="#8B2682" stroke-width="2.5"/>
+    <line x1="178" y1="150" x2="222" y2="150" stroke="#8B2682" stroke-width="2.5"/>
+    <!-- corner viewfinder brackets -->
+    <g stroke="#ffffff" stroke-width="3" fill="none" opacity="0.9">
+      <path d="M20 34 V20 H34"/>
+      <path d="M366 20 H380 V34"/>
+      <path d="M380 266 V280 H366"/>
+      <path d="M34 280 H20 V266"/>
+    </g>
+  </g>
+</svg>
