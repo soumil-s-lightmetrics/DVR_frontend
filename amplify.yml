@@ -11,7 +11,7 @@
 #   mounting-verification   -> GEMINI_API_KEY (required), GEMINI_MODEL (optional)
 version: 1
 applications:
-  # ----- Landing site: apps/labs (STATIC export -> deploy on the "Web" platform) -----
+  # ----- Landing site: apps/labs (SSR -> deploy on the "Web compute" platform) -----
   - appRoot: apps/labs
     frontend:
       phases:
@@ -23,7 +23,7 @@ applications:
           commands:
             - npx turbo run build --filter=labs-clone
       artifacts:
-        baseDirectory: out
+        baseDirectory: .next
         files:
           - "**/*"
       cache:

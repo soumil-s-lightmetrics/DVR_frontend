@@ -2,11 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@lmlabs/ui"],
-  // labs has no server code (all routes are static), so export a fully static
-  // site to ./out. This deploys on Amplify's static "Web" platform and avoids
-  // the SSR runtime entirely.
-  output: "export",
-  images: { unoptimized: true },
+  // Deployed on Amplify Web Compute (SSR). `standalone` traces every runtime
+  // dependency (including `next`) into .next/standalone, which makes the SSR
+  // deploy work in this pnpm monorepo where node_modules is symlinked.
+  output: "standalone",
 };
 
 export default nextConfig;
