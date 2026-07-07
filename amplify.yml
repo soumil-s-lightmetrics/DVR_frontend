@@ -1,0 +1,52 @@
+# AWS Amplify Hosting build spec for this pnpm + Turborepo monorepo.
+#
+# Each app deploys as a SEPARATE Amplify app connected to this same repo.
+# When you create/connect an Amplify app, enable the monorepo option and set its
+# app root to the matching folder below (apps/labs or apps/mounting-verification).
+# Amplify then runs only the block whose `appRoot` matches that setting.
+#
+# Env vars (set under App settings -> Environment variables in the console):
+#   labs                    -> NEXT_PUBLIC_MOUNTING_VERIFICATION_URL  (build-time; the
+#                              deployed mounting-verification domain)
+#   mounting-verification   -> GEMINI_API_KEY (required), GEMINI_MODEL (optional)
+version: 1
+applications:
+  # ----- Landing site: apps/labs (SSR -> deploy on the "Web compute" platform) -----
+  - appRoot: apps/labs
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@10.24.0
+            - pnpm install --frozen-lockfile
+        build:
+          commands:
+            - npx turbo run build --filter=labs-clone
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - .next/cache/**/*
+          - ../../node_modules/**/*
+
+  # ----- Dashcam Mount Analyzer: apps/mounting-verification -----
+  - appRoot: apps/mounting-verification
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm@10.24.0
+            - pnpm install --frozen-lockfile
+        build:
+          commands:
+            - npx turbo run build --filter=mounting-verification
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - .next/cache/**/*
+          - ../../node_modules/**/*
