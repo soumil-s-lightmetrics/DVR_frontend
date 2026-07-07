@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="Requesting a DVR video through a chat agent">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef2ff"/>
+      <stop offset="1" stop-color="#e0e7ff"/>
+    </linearGradient>
+    <linearGradient id="video" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <clipPath id="frame"><rect x="0" y="0" width="400" height="300" rx="8"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect x="0" y="0" width="400" height="300" fill="url(#bg)"/>
+
+    <!-- chat window -->
+    <rect x="28" y="28" width="344" height="244" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="2"/>
+    <!-- title bar -->
+    <rect x="28" y="28" width="344" height="34" rx="16" fill="#4f46e5"/>
+    <rect x="28" y="46" width="344" height="16" fill="#4f46e5"/>
+    <circle cx="48" cy="45" r="4" fill="#c7d2fe"/>
+    <rect x="60" y="41" width="90" height="8" rx="4" fill="#c7d2fe"/>
+
+    <!-- incoming user request bubble (right) -->
+    <g>
+      <rect x="150" y="80" width="196" height="40" rx="12" fill="#4f46e5"/>
+      <rect x="164" y="92" width="150" height="6" rx="3" fill="#c7d2fe"/>
+      <rect x="164" y="104" width="110" height="6" rx="3" fill="#a5b4fc"/>
+    </g>
+
+    <!-- agent reply bubble (left) with a video card -->
+    <g>
+      <rect x="54" y="132" width="150" height="30" rx="12" fill="#eef2ff"/>
+      <rect x="66" y="143" width="110" height="6" rx="3" fill="#94a3b8"/>
+
+      <!-- video result card -->
+      <rect x="54" y="172" width="150" height="80" rx="10" fill="url(#video)"/>
+      <!-- play button -->
+      <circle cx="129" cy="212" r="18" fill="#ffffff" opacity="0.95"/>
+      <path d="M123 203 L141 212 L123 221 Z" fill="#4f46e5"/>
+      <!-- timeline -->
+      <rect x="66" y="240" width="126" height="4" rx="2" fill="#334155"/>
+      <rect x="66" y="240" width="70" height="4" rx="2" fill="#818cf8"/>
+    </g>
+
+    <!-- chat input bar with send -->
+    <rect x="150" y="196" width="196" height="56" rx="12" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="164" y="216" width="120" height="7" rx="3.5" fill="#cbd5e1"/>
+    <circle cx="322" cy="224" r="16" fill="#4f46e5"/>
+    <path d="M315 224 L329 224 M323 218 L329 224 L323 230" stroke="#ffffff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

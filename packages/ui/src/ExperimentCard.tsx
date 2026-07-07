@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { motion } from "motion/react";
 import styles from "./ExperimentCard.module.css";
 
@@ -14,14 +14,18 @@ export interface ExperimentCardProps {
   href?: string;
   target?: string;
   media?: ReactNode;
+  // Override the card surface (e.g. a plain white background instead of the
+  // category tint). Merged onto the card element's inline style.
+  style?: CSSProperties;
 }
 
-export function ExperimentCard({ category, title, description, cta, href = "#", target, media }: ExperimentCardProps) {
+export function ExperimentCard({ category, title, description, cta, href = "#", target, media, style }: ExperimentCardProps) {
   return (
     <motion.a
       href={href}
       target={target}
       rel={target === "_blank" ? "noopener noreferrer" : undefined}
+      style={style}
       className={`${styles.card} gl-cat-${category}`}
       whileHover={{ y: -8 }}
       whileTap={{ scale: 0.98 }}

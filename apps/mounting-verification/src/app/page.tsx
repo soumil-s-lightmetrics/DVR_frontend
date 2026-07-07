@@ -122,7 +122,7 @@ export default function Home() {
       {/* Navbar */}
       <nav className="bg-white shadow-md py-3 px-6 flex items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/lmlogo.png" alt="LightMetrics Logo" className="h-10 w-auto" />
+        <img src="/images/logo.jpg" alt="LightMetrics Logo" className="h-10 w-auto" />
         <span className="text-lg font-bold text-[#212121]">
           Dashcam Mount Analyzer
         </span>

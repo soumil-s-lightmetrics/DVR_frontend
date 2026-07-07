@@ -54,16 +54,6 @@ export function StayConnected() {
         >
           <AnimatedLabel text="Sign up for the Labs newsletter" />
         </motion.a>
-        <motion.a
-          href="#contact"
-          className={styles.pill}
-          initial="rest"
-          animate="rest"
-          whileHover="hover"
-          variants={container}
-        >
-          <AnimatedLabel text="Work with us" />
-        </motion.a>
       </div>
 
       <div className={styles.socials}>

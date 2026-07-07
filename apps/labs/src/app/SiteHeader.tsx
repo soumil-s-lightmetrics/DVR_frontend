@@ -83,7 +83,7 @@ export function SiteHeader() {
       </nav>
 
       <a href="#contact" className={styles.contactButton}>
-        Contact us
+        Join the Labs newsletter
       </a>
     </header>
   );

@@ -14,11 +14,11 @@ export function useWebSocket(onMessage) {
   handlerRef.current = onMessage
 
   const getWsUrl = () => {
-    // In dev, VITE_WS_URL (see frontend/.env.development) points straight at the
-    // Flask backend, bypassing Vite's WebSocket proxy — which otherwise spams
-    // harmless `write EPIPE` errors on every reload. In prod the var is unset,
-    // so we fall back to a same-origin URL (Flask serves the built app).
-    if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL
+    // In dev, NEXT_PUBLIC_WS_URL (see .env.local) points straight at the Flask
+    // backend — Next can't proxy WebSockets through rewrites, so we connect
+    // directly. In prod the var is unset, so we fall back to a same-origin URL
+    // (Flask, or a reverse proxy, serves the app on the same host).
+    if (process.env.NEXT_PUBLIC_WS_URL) return process.env.NEXT_PUBLIC_WS_URL
     const proto = location.protocol === 'https:' ? 'wss' : 'ws'
     return `${proto}://${location.host}/chat`
   }
