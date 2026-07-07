@@ -41,6 +41,10 @@ applications:
             - pnpm install --frozen-lockfile
         build:
           commands:
+            # Amplify does not expose console env vars to the Next.js SSR runtime.
+            # Write them to .env.production so Next loads them at runtime (the
+            # /api/analyze route reads GEMINI_API_KEY server-side).
+            - env | grep -e GEMINI_API_KEY -e GEMINI_MODEL >> .env.production || true
             - npx turbo run build --filter=mounting-verification
       artifacts:
         baseDirectory: .next
