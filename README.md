@@ -48,7 +48,16 @@ cp apps/mounting-verification/.env.local.example apps/mounting-verification/.env
 
 ## Deploying to AWS Amplify
 
-Both apps are **SSR Next.js** apps and deploy as **two separate Amplify apps** connected to this same repo. The root [`amplify.yml`](./amplify.yml) contains a build block for each (`applications:` with an `appRoot` per app); Amplify runs only the block matching the app root you configure.
+The two apps deploy as **two separate Amplify apps** connected to this same repo. The root [`amplify.yml`](./amplify.yml) contains a build block for each (`applications:` with an `appRoot` per app); Amplify runs only the block matching the app root you configure.
+
+They use **different Amplify platforms**:
+
+| App | Rendering | Amplify platform | Output dir |
+|-----|-----------|------------------|------------|
+| labs | Static export (no server code) | **Web** (static) | `apps/labs/out` |
+| mounting-verification | SSR (has an API route) | **Web compute** (SSR) | `apps/mounting-verification/.next` |
+
+> **pnpm + SSR:** The root [`.npmrc`](./.npmrc) sets `node-linker=hoisted` so pnpm produces a flat `node_modules`. This is required for the SSR app — Amplify's Next.js runtime needs the real `next` package present, not a pnpm symlink. Without it the deploy fails with *"The 'node_modules' folder is missing the 'next' dependency"*.
 
 ### First-time setup (per app)
 
@@ -64,10 +73,12 @@ Both apps are **SSR Next.js** apps and deploy as **two separate Amplify apps** c
 
 ### Build settings reference (if setting them in the console instead of `amplify.yml`)
 
-| App | App root | Build command | Output directory |
-|-----|----------|---------------|------------------|
-| labs | `apps/labs` | `npx turbo run build --filter=labs-clone` | `apps/labs/.next` |
-| mounting-verification | `apps/mounting-verification` | `npx turbo run build --filter=mounting-verification` | `apps/mounting-verification/.next` |
+| App | App root | Build command | Output directory | Platform |
+|-----|----------|---------------|------------------|----------|
+| labs | `apps/labs` | `npx turbo run build --filter=labs-clone` | `apps/labs/out` | Web (static) |
+| mounting-verification | `apps/mounting-verification` | `npx turbo run build --filter=mounting-verification` | `apps/mounting-verification/.next` | Web compute (SSR) |
+
+If Amplify shows the **Welcome** placeholder with a tip about a missing `index.html`, the app is being served as static when it needs SSR (or vice-versa). Fix the **platform** to match the table above (`aws amplify update-app --app-id <ID> --platform WEB_COMPUTE|WEB`) and redeploy.
 
 Install step (preBuild) for both: `npm install -g pnpm@10.24.0 && pnpm install --frozen-lockfile`.
 
