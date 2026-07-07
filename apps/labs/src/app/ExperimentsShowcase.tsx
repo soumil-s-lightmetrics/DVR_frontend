@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Layout, Terminal, BarChart3 } from "lucide-react";
+import { Terminal, BarChart3 } from "lucide-react";
 import { ExperimentCard, type ExperimentCardProps } from "@lmlabs/ui";
 
 // URL of the deployed mounting-verification app. In dev it runs on :3001;
@@ -9,53 +9,43 @@ import { ExperimentCard, type ExperimentCardProps } from "@lmlabs/ui";
 const MOUNTING_VERIFICATION_URL =
   process.env.NEXT_PUBLIC_MOUNTING_VERIFICATION_URL || "http://localhost:3001";
 
+// URL of the deployed dvr-request-flow app. In dev it runs on :3002;
+// set NEXT_PUBLIC_DVR_REQUEST_URL in prod (e.g. its Amplify domain).
+const DVR_REQUEST_URL =
+  process.env.NEXT_PUBLIC_DVR_REQUEST_URL || "http://localhost:3002";
+
 const FEATURED: ExperimentCardProps[] = [
   {
     category: "create",
-    title: "Pomelli",
-    description: "Turn a website into a full marketing kit with AI-generated content ideas.",
+    title: "Agentic DVR Requests",
+    description: "Request dashcam DVR videos through a chat agent — describe the trip and it fetches the footage for you.",
     cta: "Try it now",
+    href: DVR_REQUEST_URL,
+    target: "_blank",
     media: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-fuchsia-100 via-pink-100 to-rose-100 p-6">
-        <div className="flex h-full w-[80%] flex-col overflow-hidden rounded-2xl border-4 border-neutral-900/90 bg-white shadow-2xl">
-          <div className="flex items-center gap-1.5 border-b border-neutral-200 px-3 py-2">
-            <span className="h-2 w-2 rounded-full bg-neutral-300" />
-            <span className="h-2 w-2 rounded-full bg-neutral-300" />
-            <span className="h-2 w-2 rounded-full bg-neutral-300" />
-          </div>
-          <div className="flex flex-1 flex-col gap-2 p-3">
-            <div className="h-3 w-2/3 rounded-full bg-neutral-900/90" />
-            <div className="h-2 w-1/2 rounded-full bg-neutral-300" />
-            <div className="mt-2 grid flex-1 grid-cols-3 gap-2">
-              <div className="rounded-lg bg-fuchsia-300" />
-              <div className="rounded-lg bg-pink-300" />
-              <div className="rounded-lg bg-rose-300" />
-            </div>
-          </div>
-        </div>
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/dvr-request.svg"
+        alt="Requesting DVR videos via chat"
+        className="h-full w-full object-cover"
+      />
     ),
   },
   {
-    category: "create",
-    title: "Stitch",
-    description: "Design UI for your app or website with AI assistance.",
+    category: "explore",
+    title: "Video Intelligence",
+    description: "Search and question hours of cabin and road video in plain language — e.g. find drivers not wearing a safety vest — and surface the exact clips instantly.",
     cta: "Try it now",
+    href: "https://videorag.sdo.lightmetrics.co/",
+    target: "_blank",
+    style: { background: "#ffffff" },
     media: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-100 via-violet-100 to-purple-100 p-6">
-        <div className="flex h-full w-[64%] flex-col overflow-hidden rounded-[2rem] border-4 border-neutral-900/90 bg-white shadow-2xl">
-          <div className="flex items-center justify-between px-3 py-2.5">
-            <Layout className="h-3.5 w-3.5 text-neutral-900" />
-            <span className="h-2 w-10 rounded-full bg-neutral-200" />
-          </div>
-          <div className="flex flex-1 flex-col gap-2 px-3 pb-3">
-            <div className="h-1/2 rounded-xl bg-indigo-200" />
-            <div className="h-2 w-3/4 rounded-full bg-neutral-300" />
-            <div className="h-2 w-1/2 rounded-full bg-neutral-200" />
-            <div className="mt-auto h-6 w-full rounded-full bg-neutral-900/90" />
-          </div>
-        </div>
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/video-intelligence.svg"
+        alt="Searching video with a chatbot in plain language"
+        className="h-full w-full object-cover"
+      />
     ),
   },
   {

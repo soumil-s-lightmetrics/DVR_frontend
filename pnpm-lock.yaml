@@ -12,6 +12,18 @@ importers:
         specifier: ^2.3.0
         version: 2.10.2
 
+  apps/dvr-request-flow:
+    dependencies:
+      next:
+        specifier: ^15.1.0
+        version: 15.5.20(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.7(react@19.2.7)
+
   apps/labs:
     dependencies:
       '@lmlabs/ui':

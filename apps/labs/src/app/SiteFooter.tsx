@@ -4,7 +4,7 @@ const LINKS = [
   { label: "RideView", href: "#" },
   { label: "Privacy", href: "#" },
   { label: "Terms", href: "#" },
-  { label: "Help", href: "#" },
+  { label: "Join the Labs newsletter", href: "#contact" },
 ];
 
 export function SiteFooter() {
