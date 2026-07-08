@@ -4,15 +4,10 @@ import { motion } from "motion/react";
 import { Terminal, BarChart3 } from "lucide-react";
 import { ExperimentCard, type ExperimentCardProps } from "@lmlabs/ui";
 
-// URL of the deployed mounting-verification app. In dev it runs on :3001;
-// set NEXT_PUBLIC_MOUNTING_VERIFICATION_URL in prod (e.g. its Amplify domain).
-const MOUNTING_VERIFICATION_URL =
-  process.env.NEXT_PUBLIC_MOUNTING_VERIFICATION_URL || "http://localhost:3001";
-
-// URL of the deployed dvr-request-flow app. In dev it runs on :3002;
-// set NEXT_PUBLIC_DVR_REQUEST_URL in prod (e.g. its Amplify domain).
-const DVR_REQUEST_URL =
-  process.env.NEXT_PUBLIC_DVR_REQUEST_URL || "http://localhost:3002";
+// Both experiments now live inside this same app under path prefixes, so these
+// are relative routes (full-page <a> navigation keeps each app's CSS isolated).
+const MOUNTING_VERIFICATION_URL = "/mounting-verification";
+const DVR_REQUEST_URL = "/dvr-request-flow";
 
 const FEATURED: ExperimentCardProps[] = [
   {

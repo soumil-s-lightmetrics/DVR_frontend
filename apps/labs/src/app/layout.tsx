@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "./SiteHeader";
-import "./globals.css";
 
+// Minimal root layout — intentionally imports NO global CSS and renders no
+// chrome, so each route group (site / mounting-verification / dvr-request-flow)
+// owns its own styles and layout without bleeding into the others.
 export const metadata: Metadata = {
-  title: "LM Labs: LM's home for AI experiments",
-  description: "Try our AI experiments and discover LM's newest technologies.",
+  title: "LM Labs",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <SiteHeader />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
