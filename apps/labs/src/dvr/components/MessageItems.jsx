@@ -104,6 +104,8 @@ export function ConfirmDvrCard({ payload, onSubmit, onCancel }) {
   const { params, maxDurationMinutes: maxMin, videoFormatOptions, resolutionOptions } = payload
   const durationOptions = maxMin === 3 ? [0.5, 1, 2, 3] : [15, 30, 45, 60]
   const clipStartRaw = params.clipStart
+  const isTimelapse = params.type === 'timelapse'
+  const cardLabel = isTimelapse ? 'Confirm timelapse request' : 'Confirm DVR clip request'
 
   const [format, setFormat] = useState(videoFormatOptions[0]?.value)
   const [resolution, setResolution] = useState(resolutionOptions[0])
@@ -135,7 +137,7 @@ export function ConfirmDvrCard({ payload, onSubmit, onCancel }) {
     <div className="interrupt-wrap">
       <div className="interrupt-card">
         <div className="interrupt-card-head">
-          <div className="ic-dot" style={{ background: 'var(--purple)' }}></div> Confirm DVR request
+          <div className="ic-dot" style={{ background: 'var(--purple)' }}></div> {cardLabel}
         </div>
         <div className="interrupt-card-body">
           <div className="dvr-params">{rows}</div>
