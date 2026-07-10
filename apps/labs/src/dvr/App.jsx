@@ -5,7 +5,7 @@ import MessagesArea from './components/MessagesArea.jsx'
 import ChatInputBar from './components/ChatInputBar.jsx'
 import CanvasPanel from './components/CanvasPanel.jsx'
 import { useWebSocket } from './hooks/useWebSocket.js'
-import { friendlyTripLabel } from './lib/format.js'
+import { friendlyTripLabel, chipLabel } from './lib/format.js'
 
 const EMPTY_FLEET = { drivers: [], asset_ids: [], trip_ids: [], events: [], fleet_id: null }
 
@@ -42,7 +42,7 @@ export default function App() {
   // ── message log helpers ──────────────────────────────────────────────
   const addMsg = useCallback((msg) => setMessages((m) => [...m, { id: nextId(), ...msg }]), [])
   const removeMsg = useCallback((id) => setMessages((m) => m.filter((x) => x.id !== id)), [])
-  const appendUser = useCallback((text) => addMsg({ kind: 'user', text }), [addMsg])
+  const appendUser = useCallback((text, chips) => addMsg({ kind: 'user', text, chips }), [addMsg])
   const appendBot = useCallback((text) => addMsg({ kind: 'bot', text }), [addMsg])
 
   // ── incoming server messages (ported from handleServerMessage) ───────
@@ -88,7 +88,22 @@ export default function App() {
     }
   }
 
-  const { send, connected } = useWebSocket(handleServerMessage)
+  // Refs so the reconnect handler (passed into useWebSocket below, before
+  // `send` exists as a binding) always sees the latest fleet data/thread/send
+  // without creating a circular dependency on `send` itself.
+  const fleetDataRef = useRef(fleetData)
+  fleetDataRef.current = fleetData
+  const threadIdRef = useRef(threadId)
+  threadIdRef.current = threadId
+  const sendRef = useRef(null)
+
+  const handleReconnect = useCallback(() => {
+    if (!fleetDataRef.current.fleet_id) return // nothing loaded yet this session
+    sendRef.current?.({ type: 'load_data', fleet_data: fleetDataRef.current, thread_id: threadIdRef.current })
+  }, [])
+
+  const { send, connected } = useWebSocket(handleServerMessage, handleReconnect)
+  sendRef.current = send
 
   // ── fleet loader ──────────────────────────────────────────────────────
   const loadFleet = useCallback(
@@ -146,7 +161,10 @@ export default function App() {
 
   function renderSuccess(id, sum) {
     const details = lastDvrRequestDetailsRef.current
-    addMsg({ kind: 'success', id2: id, details, summary: sum })
+    // The backend's request IDs sometimes carry a leftover "DEMO" marker
+    // from the test environment — never surface that to the user.
+    const cleanId = typeof id === 'string' ? id.replace(/demo/gi, '').replace(/--+/g, '-').replace(/^[-_]+|[-_]+$/g, '') : id
+    addMsg({ kind: 'success', id2: cleanId, details, summary: sum })
     lastDvrRequestDetailsRef.current = null
     currentConfirmParamsRef.current = null
     clearSelectedTrip()
@@ -165,6 +183,13 @@ export default function App() {
       })
       .filter(Boolean)
       .join(' ')
+  }
+
+  // Read-only chip descriptors echoed on the sent message — same look as the
+  // live filter chips in the input, minus the remove button, since a sent
+  // query's filters can't be edited after the fact.
+  function buildMsgChips(items) {
+    return items.map((e) => ({ option: e.option, label: String(chipLabel(e)) }))
   }
 
   function buildActiveFilters() {
@@ -204,7 +229,7 @@ export default function App() {
     const fq = (tc ? tc + ' ' : '') + text.trim()
     if (!fq.trim()) return false
     setView('chat')
-    appendUser(fq)
+    appendUser(text.trim(), buildMsgChips(collectedRef.current))
     setTyping(true)
     dispatch(fq)
     return true
@@ -215,8 +240,9 @@ export default function App() {
     if (!t) return false
     const tc = buildTagCtx(collectedRef.current)
     const fq = (tc ? tc + ' ' : '') + t
+    const chips = buildMsgChips(collectedRef.current)
     if (graphPaused) {
-      appendUser(fq)
+      appendUser(t, chips)
       setTyping(true)
       const tripEntry = collectedRef.current.find((e) => e.option === 'Trips')
       send({
@@ -225,7 +251,7 @@ export default function App() {
         resume_value: { text: fq, tripId: tripEntry ? tripEntry.selectedItem.tripId : null, activeFilters: buildActiveFilters() },
       })
     } else {
-      appendUser(fq)
+      appendUser(t, chips)
       setTyping(true)
       dispatch(fq)
     }
@@ -267,6 +293,7 @@ export default function App() {
   }
 
   function onStartDvr(type) {
+    setMessages((m) => m.filter((x) => x.kind !== 'trip-type-prompt'))
     const tripEntry = collectedRef.current.find((e) => e.option === 'Trips')
     const selectedTrip = tripEntry ? currentTrips.find((t) => t.tripId === tripEntry.selectedItem.tripId) : null
     if (selectedTrip) {
@@ -318,6 +345,13 @@ export default function App() {
         clipEnd: vals.clipEnd ?? null,
       }
       delete details.tripId
+      // Show the driver's name alongside their ID, resolved from the same
+      // trip match used for the clip-time bounds — not a separate lookup
+      // that could point at a different trip.
+      const matched = matchTrip(currentConfirmParamsRef.current)
+      if (matched?.driverName && details.driverId) {
+        details.driverId = `${matched.driverName} (${details.driverId})`
+      }
       lastDvrRequestDetailsRef.current = details
     }
     send({ type: 'resume_graph', thread_id: threadId, resume_value })
@@ -361,7 +395,54 @@ export default function App() {
     threadId,
   }
 
-  const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg }
+  // Matches a confirm_dvr/success payload back to a trip row we already have
+  // client-side. The interrupt's tripId doesn't always line up exactly with
+  // an entry in currentTrips (it can come back from the backend in a
+  // different form, or currentTrips has since been replaced by a later
+  // search), so this tries progressively looser matches: exact tripId ->
+  // whichever trip is currently "selected" -> same asset+driver as the
+  // request (closest to the request's own clipStart if there's more than one
+  // candidate). Once matched, this is the single source of truth for both
+  // the clip-time bounds AND the driver's display name — no separate lookup
+  // that could disagree with it.
+  function matchTrip(params) {
+    const { tripId, assetId, driverId, clipStart } = params || {}
+
+    let trip = currentTrips.find((t) => String(t.tripId) === String(tripId))
+
+    if (!trip && selectedTrip && (!tripId || String(selectedTrip.tripId) === String(tripId))) {
+      trip = selectedTrip
+    }
+
+    if (!trip && assetId) {
+      const candidates = currentTrips.filter(
+        (t) => t.assetId === assetId && (!driverId || t.driverId === driverId || t.driverName === driverId),
+      )
+      if (candidates.length === 1) {
+        trip = candidates[0]
+      } else if (candidates.length > 1) {
+        const target = clipStart ? new Date(clipStart).getTime() : NaN
+        trip = isNaN(target)
+          ? candidates[0]
+          : candidates.reduce((best, t) => {
+              const bestDiff = Math.abs(new Date(best.startTimeUTC).getTime() - target)
+              const tDiff = Math.abs(new Date(t.startTimeUTC).getTime() - target)
+              return tDiff < bestDiff ? t : best
+            })
+      }
+    }
+
+    return trip || null
+  }
+
+  function getTripBounds(params) {
+    const trip = matchTrip(params)
+    if (!trip) return null
+    return { start: trip.startTimeUTC || null, end: trip.lastPinged || null, driverName: trip.driverName || null }
+  }
+
+  const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg, getTripBounds }
+  const tripTypeMsg = messages.find((m) => m.kind === 'trip-type-prompt')
 
   return (
     <div className="shell">
@@ -392,6 +473,7 @@ export default function App() {
           scrollTripId={highlight.tripId}
           scrollNonce={highlight.n}
           onUseTrip={onUseTrip}
+          tripTypePrompt={tripTypeMsg ? { onSelect: onStartDvr, onClose: () => removeMsg(tripTypeMsg.id) } : null}
         />
       </div>
     </div>
