@@ -88,7 +88,22 @@ export default function App() {
     }
   }
 
-  const { send, connected } = useWebSocket(handleServerMessage)
+  // Refs so the reconnect handler (passed into useWebSocket below, before
+  // `send` exists as a binding) always sees the latest fleet data/thread/send
+  // without creating a circular dependency on `send` itself.
+  const fleetDataRef = useRef(fleetData)
+  fleetDataRef.current = fleetData
+  const threadIdRef = useRef(threadId)
+  threadIdRef.current = threadId
+  const sendRef = useRef(null)
+
+  const handleReconnect = useCallback(() => {
+    if (!fleetDataRef.current.fleet_id) return // nothing loaded yet this session
+    sendRef.current?.({ type: 'load_data', fleet_data: fleetDataRef.current, thread_id: threadIdRef.current })
+  }, [])
+
+  const { send, connected } = useWebSocket(handleServerMessage, handleReconnect)
+  sendRef.current = send
 
   // ── fleet loader ──────────────────────────────────────────────────────
   const loadFleet = useCallback(
@@ -267,6 +282,7 @@ export default function App() {
   }
 
   function onStartDvr(type) {
+    setMessages((m) => m.filter((x) => x.kind !== 'trip-type-prompt'))
     const tripEntry = collectedRef.current.find((e) => e.option === 'Trips')
     const selectedTrip = tripEntry ? currentTrips.find((t) => t.tripId === tripEntry.selectedItem.tripId) : null
     if (selectedTrip) {
@@ -361,7 +377,47 @@ export default function App() {
     threadId,
   }
 
-  const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg }
+  // Trip's own start/end window — used to keep clip-time edits inside the
+  // actual trip rather than just the request's duration cap. The interrupt's
+  // tripId doesn't always line up exactly with an entry in currentTrips (it
+  // can come back from the backend in a different form, or currentTrips has
+  // since been replaced by a later search), so this tries progressively
+  // looser matches: exact tripId -> whichever trip is currently "selected"
+  // -> same asset+driver as the request (closest to the request's own
+  // clipStart if there's more than one candidate).
+  function getTripBounds(params) {
+    const { tripId, assetId, driverId, clipStart } = params || {}
+
+    let trip = currentTrips.find((t) => String(t.tripId) === String(tripId))
+
+    if (!trip && selectedTrip && (!tripId || String(selectedTrip.tripId) === String(tripId))) {
+      trip = selectedTrip
+    }
+
+    if (!trip && assetId) {
+      const candidates = currentTrips.filter(
+        (t) => t.assetId === assetId && (!driverId || t.driverId === driverId || t.driverName === driverId),
+      )
+      if (candidates.length === 1) {
+        trip = candidates[0]
+      } else if (candidates.length > 1) {
+        const target = clipStart ? new Date(clipStart).getTime() : NaN
+        trip = isNaN(target)
+          ? candidates[0]
+          : candidates.reduce((best, t) => {
+              const bestDiff = Math.abs(new Date(best.startTimeUTC).getTime() - target)
+              const tDiff = Math.abs(new Date(t.startTimeUTC).getTime() - target)
+              return tDiff < bestDiff ? t : best
+            })
+      }
+    }
+
+    if (!trip) return null
+    return { start: trip.startTimeUTC || null, end: trip.lastPinged || null }
+  }
+
+  const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg, getTripBounds }
+  const tripTypeMsg = messages.find((m) => m.kind === 'trip-type-prompt')
 
   return (
     <div className="shell">
@@ -392,6 +448,7 @@ export default function App() {
           scrollTripId={highlight.tripId}
           scrollNonce={highlight.n}
           onUseTrip={onUseTrip}
+          tripTypePrompt={tripTypeMsg ? { onSelect: onStartDvr, onClose: () => removeMsg(tripTypeMsg.id) } : null}
         />
       </div>
     </div>

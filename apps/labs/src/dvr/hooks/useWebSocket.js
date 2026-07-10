@@ -2,16 +2,21 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 // Plain WebSocket connection with the original's queue + exponential-backoff
 // reconnect. onMessage is kept in a ref so the socket callbacks always see the
-// latest handler without needing to reconnect.
-export function useWebSocket(onMessage) {
+// latest handler without needing to reconnect. onReconnect (optional) fires
+// right after every open EXCEPT the first-ever one, so callers can re-seed
+// server-side state (e.g. fleet data) that a fresh socket has no memory of.
+export function useWebSocket(onMessage, onReconnect) {
   const wsRef = useRef(null)
   const readyRef = useRef(false)
   const queueRef = useRef([])
   const delayRef = useRef(1000)
   const handlerRef = useRef(onMessage)
+  const reconnectRef = useRef(onReconnect)
+  const hasConnectedOnceRef = useRef(false)
   const [connected, setConnected] = useState(false)
 
   handlerRef.current = onMessage
+  reconnectRef.current = onReconnect
 
   const getWsUrl = () => {
     // In dev, NEXT_PUBLIC_WS_URL (see .env.local) points straight at the Flask
@@ -31,6 +36,14 @@ export function useWebSocket(onMessage) {
       readyRef.current = true
       delayRef.current = 1000
       setConnected(true)
+
+      // Server-side state (fleet data, etc.) is per-connection and gets wiped
+      // on reconnect. Re-seed it before flushing anything that depends on it.
+      if (hasConnectedOnceRef.current) {
+        reconnectRef.current?.()
+      }
+      hasConnectedOnceRef.current = true
+
       queueRef.current.forEach((msg) => ws.send(JSON.stringify(msg)))
       queueRef.current = []
     }
