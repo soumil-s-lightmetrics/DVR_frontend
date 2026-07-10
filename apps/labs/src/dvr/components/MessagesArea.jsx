@@ -29,7 +29,9 @@ export default function MessagesArea({ active, messages, typing, handlers }) {
           case 'action-chips':
             return <ActionChips key={m.id} onStartDvr={handlers.onStartDvr} />
           case 'trip-type-prompt':
-            return <ActionChips key={m.id} large onStartDvr={handlers.onStartDvr} />
+            // Rendered as an attention-grabbing popup pinned to the top of
+            // the chat panel instead (see App.jsx), not inline here.
+            return null
           case 'ts-interrupt':
             return (
               <TimestampInterrupt
@@ -43,6 +45,7 @@ export default function MessagesArea({ active, messages, typing, handlers }) {
               <ConfirmDvrCard
                 key={m.id}
                 payload={m.payload}
+                tripBounds={handlers.getTripBounds(m.payload.params)}
                 onSubmit={(vals) => handlers.onConfirmDvr(true, vals, m.id)}
                 onCancel={() => handlers.onConfirmDvr(false, null, m.id)}
               />

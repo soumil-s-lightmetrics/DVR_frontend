@@ -92,7 +92,13 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3002)",
       "Bash(pkill -f \"vite\")",
       "Bash(curl -s -o /dev/null -w \"5173: %{http_code}\\\\n\" http://localhost:5173)",
-      "Bash(pnpm dev *)"
+      "Bash(pnpm dev *)",
+      "Bash(curl -s http://localhost:3000/dvr-request-flow)",
+      "Bash(npx eslint *)",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(curl -s http://localhost:3000/dvr-request-flow -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s -i --http1.1 --max-time 8 -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Sec-WebSocket-Version: 13' -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==' https://dvrrequest-flow-production.up.railway.app/chat)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://dvrrequest-flow-production.up.railway.app/health --max-time 8)"
     ],
     "additionalDirectories": [
       "/Users/shriyansohan/Desktop/LMLabs",
