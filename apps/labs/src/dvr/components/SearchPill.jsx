@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MIcon, Highlight, SendIcon } from './common.jsx'
-import { CATEGORY_ICON, friendlyTripLabel } from '../lib/format.js'
+import { CATEGORY_ICON, chipLabel } from '../lib/format.js'
 import { globalSearch, localSearch, stageEntry } from '../lib/search.js'
 
 const CATS = [
@@ -10,14 +10,6 @@ const CATS = [
   { m: 'Event Types', i: 'warning', l: 'Event types' },
 ]
 const GROUP_ORDER = ['Drivers', 'Assets', 'Trips', 'Event Types']
-
-// Label shown on a chip for a collectedItems entry (ported from rerenderChips).
-function chipLabel(e) {
-  if (e.option === 'Drivers') return e.selectedItem.driverName || e.selectedItem.driverId
-  if (e.option === 'DateRange') return e.selectedItem.label
-  if (e.option === 'Trips') return e.selectedItem.label || friendlyTripLabel({ driverName: 'Trip', assetId: '' })
-  return e.selectedItem.assetId || e.selectedItem.event_type || ''
-}
 
 // Shared search input with @-mention autocomplete + selected-filter chips.
 // variant: 'landing' (text input, dropdown below) | 'chat' (textarea, dropdown above)

@@ -10,10 +10,20 @@ export function fmtUtcDateTime(iso) {
   return iso ? new Date(iso).toLocaleString('en-GB', UTC_DT) : ''
 }
 
+// Capitalizes just the first letter — for display-only free-text values like
+// "type"/"videoFormat" (e.g. "timelapse" -> "Timelapse"), not IDs or dates.
+export function capFirst(s) {
+  const str = String(s ?? '')
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str
+}
+
 // FIX 4 helpers ------------------------------------------------------------
 export function fmtClip(iso) {
   if (!iso) return '—'
-  return String(iso).replace('T', ' ').replace(/\.\d+/, '').replace(/\+.*$/, '')
+  return String(iso)
+    .replace('T', ' ')
+    .replace(/\.\d+/, '')
+    .replace(/(\+.*|Z)$/, '')
 }
 
 export function computeClipEnd(startIso, durMin) {
@@ -71,4 +81,13 @@ export const CATEGORY_ICON = {
   Trips: 'route',
   'Event Types': 'warning',
   DateRange: 'calendar_month',
+}
+
+// Label shown on a chip for a collectedItems entry — shared by the live
+// filter pills (SearchPill) and the read-only chips echoed on a sent message.
+export function chipLabel(e) {
+  if (e.option === 'Drivers') return e.selectedItem.driverName || e.selectedItem.driverId
+  if (e.option === 'DateRange') return e.selectedItem.label
+  if (e.option === 'Trips') return e.selectedItem.label || friendlyTripLabel({ driverName: 'Trip', assetId: '' })
+  return e.selectedItem.assetId || e.selectedItem.event_type || ''
 }
