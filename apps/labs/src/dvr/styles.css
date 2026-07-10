@@ -90,6 +90,10 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:var(--
 .msg.user .msg-body{flex:0 1 auto;max-width:78%;margin-left:auto;text-align:right}
 .msg.user .msg-role{text-align:right}
 .msg.user .msg-text{display:inline-block;text-align:left;background:var(--purple);color:#fff;padding:9px 14px;border-radius:14px 14px 3px 14px;font-weight:500}
+/* filters active when a query was sent, echoed as read-only chips (no
+   remove button — they can't be changed after the fact) above the bubble */
+.msg-chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end;margin-bottom:6px}
+.selected-tag-static{cursor:default}
 .typing{display:flex;gap:4px;align-items:center;padding:6px 0}
 .typing span{width:5px;height:5px;border-radius:50%;background:var(--text-tri);animation:blink 1.2s infinite ease-in-out}
 .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}

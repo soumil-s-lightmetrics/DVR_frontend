@@ -5,7 +5,7 @@ import MessagesArea from './components/MessagesArea.jsx'
 import ChatInputBar from './components/ChatInputBar.jsx'
 import CanvasPanel from './components/CanvasPanel.jsx'
 import { useWebSocket } from './hooks/useWebSocket.js'
-import { friendlyTripLabel } from './lib/format.js'
+import { friendlyTripLabel, chipLabel } from './lib/format.js'
 
 const EMPTY_FLEET = { drivers: [], asset_ids: [], trip_ids: [], events: [], fleet_id: null }
 
@@ -42,7 +42,7 @@ export default function App() {
   // ── message log helpers ──────────────────────────────────────────────
   const addMsg = useCallback((msg) => setMessages((m) => [...m, { id: nextId(), ...msg }]), [])
   const removeMsg = useCallback((id) => setMessages((m) => m.filter((x) => x.id !== id)), [])
-  const appendUser = useCallback((text) => addMsg({ kind: 'user', text }), [addMsg])
+  const appendUser = useCallback((text, chips) => addMsg({ kind: 'user', text, chips }), [addMsg])
   const appendBot = useCallback((text) => addMsg({ kind: 'bot', text }), [addMsg])
 
   // ── incoming server messages (ported from handleServerMessage) ───────
@@ -161,7 +161,10 @@ export default function App() {
 
   function renderSuccess(id, sum) {
     const details = lastDvrRequestDetailsRef.current
-    addMsg({ kind: 'success', id2: id, details, summary: sum })
+    // The backend's request IDs sometimes carry a leftover "DEMO" marker
+    // from the test environment — never surface that to the user.
+    const cleanId = typeof id === 'string' ? id.replace(/demo/gi, '').replace(/--+/g, '-').replace(/^[-_]+|[-_]+$/g, '') : id
+    addMsg({ kind: 'success', id2: cleanId, details, summary: sum })
     lastDvrRequestDetailsRef.current = null
     currentConfirmParamsRef.current = null
     clearSelectedTrip()
@@ -180,6 +183,13 @@ export default function App() {
       })
       .filter(Boolean)
       .join(' ')
+  }
+
+  // Read-only chip descriptors echoed on the sent message — same look as the
+  // live filter chips in the input, minus the remove button, since a sent
+  // query's filters can't be edited after the fact.
+  function buildMsgChips(items) {
+    return items.map((e) => ({ option: e.option, label: String(chipLabel(e)) }))
   }
 
   function buildActiveFilters() {
@@ -219,7 +229,7 @@ export default function App() {
     const fq = (tc ? tc + ' ' : '') + text.trim()
     if (!fq.trim()) return false
     setView('chat')
-    appendUser(fq)
+    appendUser(text.trim(), buildMsgChips(collectedRef.current))
     setTyping(true)
     dispatch(fq)
     return true
@@ -230,8 +240,9 @@ export default function App() {
     if (!t) return false
     const tc = buildTagCtx(collectedRef.current)
     const fq = (tc ? tc + ' ' : '') + t
+    const chips = buildMsgChips(collectedRef.current)
     if (graphPaused) {
-      appendUser(fq)
+      appendUser(t, chips)
       setTyping(true)
       const tripEntry = collectedRef.current.find((e) => e.option === 'Trips')
       send({
@@ -240,7 +251,7 @@ export default function App() {
         resume_value: { text: fq, tripId: tripEntry ? tripEntry.selectedItem.tripId : null, activeFilters: buildActiveFilters() },
       })
     } else {
-      appendUser(fq)
+      appendUser(t, chips)
       setTyping(true)
       dispatch(fq)
     }
@@ -334,6 +345,13 @@ export default function App() {
         clipEnd: vals.clipEnd ?? null,
       }
       delete details.tripId
+      // Show the driver's name alongside their ID, resolved from the same
+      // trip match used for the clip-time bounds — not a separate lookup
+      // that could point at a different trip.
+      const matched = matchTrip(currentConfirmParamsRef.current)
+      if (matched?.driverName && details.driverId) {
+        details.driverId = `${matched.driverName} (${details.driverId})`
+      }
       lastDvrRequestDetailsRef.current = details
     }
     send({ type: 'resume_graph', thread_id: threadId, resume_value })
@@ -377,15 +395,17 @@ export default function App() {
     threadId,
   }
 
-  // Trip's own start/end window — used to keep clip-time edits inside the
-  // actual trip rather than just the request's duration cap. The interrupt's
-  // tripId doesn't always line up exactly with an entry in currentTrips (it
-  // can come back from the backend in a different form, or currentTrips has
-  // since been replaced by a later search), so this tries progressively
-  // looser matches: exact tripId -> whichever trip is currently "selected"
-  // -> same asset+driver as the request (closest to the request's own
-  // clipStart if there's more than one candidate).
-  function getTripBounds(params) {
+  // Matches a confirm_dvr/success payload back to a trip row we already have
+  // client-side. The interrupt's tripId doesn't always line up exactly with
+  // an entry in currentTrips (it can come back from the backend in a
+  // different form, or currentTrips has since been replaced by a later
+  // search), so this tries progressively looser matches: exact tripId ->
+  // whichever trip is currently "selected" -> same asset+driver as the
+  // request (closest to the request's own clipStart if there's more than one
+  // candidate). Once matched, this is the single source of truth for both
+  // the clip-time bounds AND the driver's display name — no separate lookup
+  // that could disagree with it.
+  function matchTrip(params) {
     const { tripId, assetId, driverId, clipStart } = params || {}
 
     let trip = currentTrips.find((t) => String(t.tripId) === String(tripId))
@@ -412,8 +432,13 @@ export default function App() {
       }
     }
 
+    return trip || null
+  }
+
+  function getTripBounds(params) {
+    const trip = matchTrip(params)
     if (!trip) return null
-    return { start: trip.startTimeUTC || null, end: trip.lastPinged || null }
+    return { start: trip.startTimeUTC || null, end: trip.lastPinged || null, driverName: trip.driverName || null }
   }
 
   const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg, getTripBounds }

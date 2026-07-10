@@ -23,7 +23,7 @@ export default function MessagesArea({ active, messages, typing, handlers }) {
       {messages.map((m) => {
         switch (m.kind) {
           case 'user':
-            return <UserMessage key={m.id} text={m.text} />
+            return <UserMessage key={m.id} text={m.text} chips={m.chips} />
           case 'bot':
             return <BotMessage key={m.id} text={m.text} />
           case 'action-chips':

@@ -1,15 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import { MIcon } from './common.jsx'
-import { fmtClip, computeClipEnd, clipToInputValue, inputValueToClip, addMinutesToClip, diffMinutesClip } from '../lib/format.js'
+import {
+  fmtClip,
+  computeClipEnd,
+  clipToInputValue,
+  inputValueToClip,
+  addMinutesToClip,
+  diffMinutesClip,
+  CATEGORY_ICON,
+  capFirst,
+} from '../lib/format.js'
 
 // ── plain chat turns ────────────────────────────────────────────────────
-export function UserMessage({ text }) {
+export function UserMessage({ text, chips }) {
   return (
     <div className="msg user">
       <div className="msg-avatar">U</div>
       <div className="msg-body">
         <div className="msg-role">You</div>
-        <div className="msg-text">{text}</div>
+        {chips && chips.length > 0 && (
+          <div className="msg-chips">
+            {chips.map((c, i) => (
+              <span className="selected-tag selected-tag-static" key={i}>
+                <MIcon name={CATEGORY_ICON[c.option] || 'category'} size={13} /> {c.label}
+              </span>
+            ))}
+          </div>
+        )}
+        {text && <div className="msg-text">{text}</div>}
       </div>
     </div>
   )
@@ -228,12 +246,41 @@ export function ConfirmDvrCard({ payload, onSubmit, onCancel, tripBounds }) {
     return end
   })
 
+  // Show the driver's name alongside their ID — resolved from the same trip
+  // match used for the clip-time bounds, not a separate lookup.
+  const driverName = tripBounds?.driverName || null
+
+  // Duration is an alternative way to set clip end — picking one just moves
+  // end to start + duration; editing start/end directly (via ClipTimeBox)
+  // works independently. For timelapse, presets longer than however much
+  // trip is left from the current start are hidden (a 3-minute DVR clip
+  // never runs into this, so no filtering needed there).
+  const durationPresets = maxMin === 3 ? [0.5, 1, 2, 3] : [15, 30, 45, 60]
+  const remainingTripMin = tripEnd ? diffMinutesClip(clipStart, tripEnd) : null
+  const durationOptions =
+    isTimelapse && remainingTripMin != null ? durationPresets.filter((d) => d <= remainingTripMin) : durationPresets
+  const currentDuration = Math.round(diffMinutesClip(clipStart, clipEnd) * 100) / 100
+  // If the current end came from a direct edit rather than a preset, show it
+  // as its own option so the dropdown doesn't sit blank/mismatched.
+  const durationSelectOptions = durationOptions.some((d) => Math.abs(d - currentDuration) < 0.01)
+    ? durationOptions
+    : [...durationOptions, currentDuration].sort((a, b) => a - b)
+
+  function handleDurationChange(mins) {
+    const d = parseFloat(mins)
+    let newEnd = addMinutesToClip(clipStart, d)
+    if (tripEnd && diffMinutesClip(newEnd, tripEnd) < 0) newEnd = tripEnd
+    setClipEnd(newEnd)
+  }
+
   const rows = Object.entries(params)
     .filter(([k]) => !HIDDEN_KEYS.includes(k))
     .map(([k, v]) => (
       <div className="dvr-param-row" key={k}>
         <span className="dvr-param-key">{FRIENDLY_KEY[k] || k}</span>
-        <span className="dvr-param-val">{String(v)}</span>
+        <span className="dvr-param-val">
+          {k === 'driverId' && driverName ? `${driverName} (${v})` : k === 'type' ? capFirst(v) : String(v)}
+        </span>
       </div>
     ))
 
@@ -322,13 +369,23 @@ export function ConfirmDvrCard({ payload, onSubmit, onCancel, tripBounds }) {
               onCommit={commitEnd}
             />
           </div>
-          <div className="ts-grid" style={{ marginTop: 10 }}>
+          <div className="ts-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', marginTop: 10 }}>
             <div>
               <div className="ts-label">Video format</div>
               <select className="ts-input" value={format} onChange={(e) => setFormat(e.target.value)}>
                 {videoFormatOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div className="ts-label">Duration (max {maxMin}m)</div>
+              <select className="ts-input" value={currentDuration} onChange={(e) => handleDurationChange(e.target.value)}>
+                {durationSelectOptions.map((d) => (
+                  <option key={d} value={d}>
+                    {d} min
                   </option>
                 ))}
               </select>
@@ -370,6 +427,7 @@ const LABEL_MAP = {
   durationMinutes: 'Duration (min)',
 }
 const DETAIL_ORDER = ['driverId', 'assetId', 'type', 'clipStart', 'clipEnd', 'videoFormat', 'videoResolution', 'durationMinutes']
+const CAP_KEYS = ['type', 'videoFormat']
 
 export function SuccessBanner({ id, details, summary }) {
   let detailBlock = null
@@ -379,7 +437,7 @@ export function SuccessBanner({ id, details, summary }) {
         {DETAIL_ORDER.filter((k) => details[k] !== undefined && details[k] !== null).map((k) => (
           <div className="dvr-param-row" key={k}>
             <span className="dvr-param-key">{LABEL_MAP[k] || k}</span>
-            <span className="dvr-param-val">{String(details[k])}</span>
+            <span className="dvr-param-val">{CAP_KEYS.includes(k) ? capFirst(details[k]) : String(details[k])}</span>
           </div>
         ))}
       </div>
@@ -387,7 +445,7 @@ export function SuccessBanner({ id, details, summary }) {
   } else if (summary) {
     detailBlock = (
       <div style={{ fontSize: 11, color: 'var(--text-tri)', marginTop: 6 }}>
-        {summary.type} · {summary.videoFormat} · {summary.videoResolution}
+        {capFirst(summary.type)} · {capFirst(summary.videoFormat)} · {summary.videoResolution}
       </div>
     )
   }
