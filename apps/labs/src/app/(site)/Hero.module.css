@@ -4,11 +4,12 @@
   margin-bottom: 0;
 }
 
-/* Zero-size scroll target for the "About" nav link. Sits at the scroll depth
-   (~90% of the hero's scroll range) where the about copy has faded in. */
+/* Zero-size scroll target for the "About" nav link (#aboutusnavbar). Sits at
+   the scroll depth (~94% of the hero's scroll range) where the about copy has
+   fully faded in, so clicking About lands on the revealed paragraph. */
 .aboutAnchor {
   position: absolute;
-  top: 90vh;
+  top: 94vh;
   left: 0;
   width: 1px;
   height: 1px;

@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Globe, Linkedin, Twitter } from "lucide-react";
+import { Globe, Linkedin, Youtube } from "lucide-react";
 import styles from "./StayConnected.module.css";
 
 const SOCIALS = [
-  { label: "Website", href: "https://example.com", Icon: Globe },
-  { label: "LinkedIn", href: "https://www.linkedin.com", Icon: Linkedin },
-  { label: "Twitter", href: "https://twitter.com", Icon: Twitter },
+  { label: "Website", href: "https://www.lightmetrics.co/", Icon: Globe },
+  { label: "LinkedIn", href: "https://in.linkedin.com/company/lightmetrics", Icon: Linkedin },
+  { label: "YouTube", href: "https://www.youtube.com/@lightmetrics9922", Icon: Youtube },
 ];
 
 const container = {
@@ -45,14 +45,16 @@ export function StayConnected() {
 
       <div className={styles.actions}>
         <motion.a
-          href="#connect"
+          href="https://lightmetrics.co/"
+          target="_blank"
+          rel="noreferrer"
           className={styles.pill}
           initial="rest"
           animate="rest"
           whileHover="hover"
           variants={container}
         >
-          <AnimatedLabel text="Sign up for the Labs newsletter" />
+          <AnimatedLabel text="Visit LightMetrics" />
         </motion.a>
       </div>
 

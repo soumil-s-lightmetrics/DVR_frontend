@@ -42,11 +42,12 @@ export function Hero() {
 
   return (
     <div ref={wrapperRef} id="hero-section" className={styles.wrapper}>
-      {/* Stable scroll anchor for the "About" nav link — positioned at the
-          scroll depth where the about copy is fully revealed. Kept as a direct
-          child of the (relative) wrapper so its offsetTop is constant, unlike
-          the absolutely-positioned about block inside the sticky container. */}
-      <div id="about" aria-hidden className={styles.aboutAnchor} />
+      {/* Scroll target for the "About" nav link. The about copy below is
+          absolutely positioned inside the sticky container and only fades in
+          near the end of the hero scroll, so a stable anchor sits at the depth
+          where that copy (through "...before it ever reaches millions of
+          users") is fully revealed, as a direct child of the wrapper. */}
+      <div id="aboutusnavbar" aria-hidden className={styles.aboutAnchor} />
       <motion.div className={styles.sticky} style={{ backgroundColor: frameBackground }}>
         <motion.div className={styles.videoFrame} style={{ scale, borderRadius }}>
           <video className={styles.video} src="/videos/herovideo.mp4" autoPlay muted loop playsInline />
@@ -54,9 +55,9 @@ export function Hero() {
 
           <motion.div className={styles.caption} style={{ opacity: textOpacity }}>
             <span className={styles.eyebrow}>LM Labs</span>
-            <h1 className={styles.title}>Where bold ideas become real AI experiments</h1>
+            <h1 className={styles.title}>Where bold ideas become reality</h1>
             <p className={styles.subtitle}>
-              We build, test, and ship experimental AI products in the open.
+              Experience the latest innovations in video telematics
             </p>
           </motion.div>
 

@@ -8,12 +8,16 @@ import { ExperimentCard, type ExperimentCardProps } from "@lmlabs/ui";
 // are relative routes (full-page <a> navigation keeps each app's CSS isolated).
 const MOUNTING_VERIFICATION_URL = "/mounting-verification";
 const DVR_REQUEST_URL = "/dvr-request-flow";
+// Video Intelligence portal is embedded (iframed) under this app rather than
+// linking out to its separate deployment (videorag.sdo.lightmetrics.co).
+const VIDEO_INTELLIGENCE_URL = "/video-intelligence";
 
 const FEATURED: ExperimentCardProps[] = [
   {
     category: "create",
-    title: "Agentic DVR Requests",
-    description: "Request dashcam DVR videos through a chat agent — describe the trip and it fetches the footage for you.",
+    title: "Agentic DVR",
+    subtitle: "Video requests, without the hunt.",
+    description: "Find the right trip and pull the footage you need in a few plain-language steps.",
     cta: "Try it now",
     href: DVR_REQUEST_URL,
     target: "_blank",
@@ -28,10 +32,11 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "explore",
-    title: "Video Intelligence",
-    description: "Search and question hours of cabin and road video in plain language — e.g. find drivers not wearing a safety vest — and surface the exact clips instantly.",
+    title: "Video Search",
+    subtitle: "Describe it, and find it.",
+    description: "Video RAG that surfaces the clips you're looking for from a plain-language description — no filters, no tags.",
     cta: "Try it now",
-    href: "https://videorag.sdo.lightmetrics.co/",
+    href: VIDEO_INTELLIGENCE_URL,
     target: "_blank",
     style: { background: "#ffffff" },
     media: (
@@ -45,8 +50,9 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "explore",
-    title: "Mounting Verification",
-    description: "Upload a dashcam image and instantly check if the camera is mounted correctly for video evidence and ADAS.",
+    title: "AI-Assisted Installation",
+    subtitle: "Get the camera view right the first time.",
+    description: "AI guides installers in near real-time, confirming whether the camera is positioned correctly before they leave the vehicle.",
     cta: "Try it now",
     href: MOUNTING_VERIFICATION_URL,
     target: "_blank",
@@ -61,8 +67,9 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "create",
-    title: "Jules",
-    description: "An async coding agent that fixes bugs and ships features while you focus elsewhere.",
+    title: "Agentic LISA",
+    subtitle: "Just ask your fleet data anything.",
+    description: "A conversational assistant for discovering what matters — safety, coaching, camera health, and more — without digging through dashboards.",
     cta: "Try it now",
     media: (
       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-800 via-neutral-900 to-black p-6">
@@ -84,9 +91,10 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "create",
-    title: "Vantage",
-    description: "An AI-powered tool for understanding complex data at a glance.",
-    cta: "Learn more",
+    title: "Breaking the Silos",
+    subtitle: "Your data, in the AI tool you already use.",
+    description: "RideView MCP lets your users bring their favorite AI assistant to their fleet data.",
+    cta: "Try it now",
     media: (
       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 p-6">
         <div className="flex h-full w-[78%] flex-col overflow-hidden rounded-2xl border-4 border-neutral-900/90 bg-white p-3 shadow-2xl">

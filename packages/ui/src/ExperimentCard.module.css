@@ -32,7 +32,13 @@
 }
 .title {
   font-size: 2rem;
+  font-weight: 600;
+}
+.subtitle {
+  font-size: 1.55rem;
   font-weight: var(--gl-font-weight-medium);
+  color: var(--gl-color-on-surface);
+  line-height: 1.35;
 }
 .description {
   font-size: 1.5rem;

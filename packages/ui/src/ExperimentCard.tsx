@@ -9,6 +9,8 @@ export type Category = "create" | "develop" | "explore" | "learn";
 export interface ExperimentCardProps {
   category: Category;
   title: string;
+  // Optional emphasized line shown between the title and the description.
+  subtitle?: string;
   description: string;
   cta: string;
   href?: string;
@@ -19,7 +21,7 @@ export interface ExperimentCardProps {
   style?: CSSProperties;
 }
 
-export function ExperimentCard({ category, title, description, cta, href = "#", target, media, style }: ExperimentCardProps) {
+export function ExperimentCard({ category, title, subtitle, description, cta, href = "#", target, media, style }: ExperimentCardProps) {
   return (
     <motion.a
       href={href}
@@ -34,6 +36,7 @@ export function ExperimentCard({ category, title, description, cta, href = "#", 
       <div className={styles.media}>{media ?? <div className={styles.mediaPlaceholder} />}</div>
       <div className={styles.body}>
         <h3 className={styles.title}>{title}</h3>
+        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         <p className={styles.description}>{description}</p>
         <span className={styles.cta}>{cta} &rarr;</span>
       </div>
