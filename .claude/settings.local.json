@@ -98,7 +98,18 @@
       "Bash(node --input-type=module -e ' *)",
       "Bash(curl -s http://localhost:3000/dvr-request-flow -o /dev/null -w \"%{http_code}\\\\n\")",
       "Bash(curl -s -i --http1.1 --max-time 8 -H 'Connection: Upgrade' -H 'Upgrade: websocket' -H 'Sec-WebSocket-Version: 13' -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==' https://dvrrequest-flow-production.up.railway.app/chat)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://dvrrequest-flow-production.up.railway.app/health --max-time 8)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://dvrrequest-flow-production.up.railway.app/health --max-time 8)",
+      "Bash(rm -rf /tmp/cdp-profile5)",
+      "Bash(timeout 60 node lines.mjs)",
+      "Bash(rm -rf /tmp/cdp-profile6)",
+      "Bash(timeout 70 node tune.mjs)",
+      "Bash(rm -rf /tmp/cdp-profile7)",
+      "Bash(timeout 70 node tune2.mjs)",
+      "Bash(sed -i \"s/const combos=\\\\[.*\\\\];/const combos=[[5,88],[5,96],[5,104],[4.5,76],[4.5,84],[4.5,92],[4,64],[4,72],[4,80]];/\" tune2.mjs)",
+      "Bash(sed -i 's/9339/9340/; s#cdp-profile7#cdp-profile8#g' tune2.mjs)",
+      "Bash(rm -rf /tmp/cdp-profile8)",
+      "Bash(rm -rf /tmp/cdp-profile9)",
+      "Bash(timeout 60 node verify2.mjs)"
     ],
     "additionalDirectories": [
       "/Users/shriyansohan/Desktop/LMLabs",

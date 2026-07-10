@@ -146,8 +146,10 @@ export function ExperimentsShowcase() {
       <p className="relative z-10 mb-4 text-center text-lg text-[var(--gl-color-on-surface-subtle)]">
         Join us from day one.
       </p>
-      <h2 className="relative z-10 mb-20 text-center text-[12rem] font-medium leading-tight text-black sm:text-[11rem]">
-        Own the first experience
+      <h2 className="relative z-10 mx-auto mb-20 max-w-[130rem] px-8 text-center text-[3rem] font-medium leading-tight text-black sm:text-[5.25rem]">
+        Discover our latest experiments and help
+        <br />
+        shape the future of fleet safety
       </h2>
 
       <motion.div
