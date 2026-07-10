@@ -41,7 +41,25 @@ function AnimatedLabel({ text }: { text: string }) {
 export function StayConnected() {
   return (
     <div className={styles.wrapper}>
-      <h2 className={styles.title}>Stay connected for early access to our new experiments</h2>
+      <h2 className={styles.title}>Want to keep up with our work?</h2>
+
+      <div className={styles.follow}>
+        <p className={styles.followUs}>Follow us.</p>
+        <div className={styles.socials}>
+          {SOCIALS.map(({ label, href, Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={label}
+              className={styles.socialLink}
+            >
+              <Icon className={styles.socialIcon} strokeWidth={1.75} />
+            </a>
+          ))}
+        </div>
+      </div>
 
       <div className={styles.actions}>
         <motion.a
@@ -56,21 +74,6 @@ export function StayConnected() {
         >
           <AnimatedLabel text="Visit LightMetrics" />
         </motion.a>
-      </div>
-
-      <div className={styles.socials}>
-        {SOCIALS.map(({ label, href, Icon }) => (
-          <a
-            key={label}
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={label}
-            className={styles.socialLink}
-          >
-            <Icon className={styles.socialIcon} strokeWidth={1.75} />
-          </a>
-        ))}
       </div>
     </div>
   );

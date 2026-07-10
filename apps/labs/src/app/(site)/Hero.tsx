@@ -45,8 +45,7 @@ export function Hero() {
       {/* Scroll target for the "About" nav link. The about copy below is
           absolutely positioned inside the sticky container and only fades in
           near the end of the hero scroll, so a stable anchor sits at the depth
-          where that copy (through "...before it ever reaches millions of
-          users") is fully revealed, as a direct child of the wrapper. */}
+          where that copy is fully revealed, as a direct child of the wrapper. */}
       <div id="aboutusnavbar" aria-hidden className={styles.aboutAnchor} />
       <motion.div className={styles.sticky} style={{ backgroundColor: frameBackground }}>
         <motion.div className={styles.videoFrame} style={{ scale, borderRadius }}>
@@ -74,10 +73,8 @@ export function Hero() {
         <motion.div className={styles.about} style={{ opacity: aboutOpacity, y: aboutY }}>
           <p className={styles.aboutEyebrow}>We build in the open.</p>
           <p className={styles.aboutCopy}>
-            LM Labs is where our AI experiments come to life — anyone can watch an idea go from
-            prototype to product. Every experiment here runs on the same models and infrastructure
-            that power our shipped products, shaped by feedback from trusted testers before it ever
-            reaches millions of users.
+            LM Labs is where we test bold ideas early. These are experiments — not final products.
+            They may change, may never ship, and may have bugs.
           </p>
         </motion.div>
       </motion.div>

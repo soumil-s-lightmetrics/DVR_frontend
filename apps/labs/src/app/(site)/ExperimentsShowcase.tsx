@@ -1,7 +1,7 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { motion } from "motion/react";
-import { Terminal, BarChart3 } from "lucide-react";
 import { ExperimentCard, type ExperimentCardProps } from "@lmlabs/ui";
 
 // Both experiments now live inside this same app under path prefixes, so these
@@ -24,9 +24,9 @@ const FEATURED: ExperimentCardProps[] = [
     media: (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="/dvr-request.svg"
+        src="/experiments/agentic-dvr.jpg"
         alt="Requesting DVR videos via chat"
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
       />
     ),
   },
@@ -38,13 +38,12 @@ const FEATURED: ExperimentCardProps[] = [
     cta: "Try it now",
     href: VIDEO_INTELLIGENCE_URL,
     target: "_blank",
-    style: { background: "#ffffff" },
     media: (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="/video-intelligence.svg"
+        src="/experiments/video-search.jpg"
         alt="Searching video with a chatbot in plain language"
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
       />
     ),
   },
@@ -59,9 +58,9 @@ const FEATURED: ExperimentCardProps[] = [
     media: (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="/mounting-verification.svg"
+        src="/experiments/ai-assisted-installation.jpg"
         alt="Dashcam mounting preview"
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
       />
     ),
   },
@@ -72,21 +71,12 @@ const FEATURED: ExperimentCardProps[] = [
     description: "A conversational assistant for discovering what matters — safety, coaching, camera health, and more — without digging through dashboards.",
     cta: "Try it now",
     media: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-800 via-neutral-900 to-black p-6">
-        <div className="flex h-full w-[80%] flex-col overflow-hidden rounded-2xl border-4 border-white/20 bg-neutral-950 shadow-2xl">
-          <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
-            <Terminal className="h-3 w-3 text-emerald-400" />
-            <span className="h-2 w-16 rounded-full bg-white/15" />
-          </div>
-          <div className="flex flex-1 flex-col gap-1.5 p-3 font-mono">
-            <div className="h-2 w-1/3 rounded-full bg-purple-400/80" />
-            <div className="h-2 w-2/3 rounded-full bg-emerald-400/80" />
-            <div className="h-2 w-1/2 rounded-full bg-sky-400/80" />
-            <div className="h-2 w-3/4 rounded-full bg-white/25" />
-            <div className="h-2 w-2/5 rounded-full bg-emerald-400/80" />
-          </div>
-        </div>
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/experiments/agentic-lisa.jpg"
+        alt="Conversational assistant answering fleet data questions"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+      />
     ),
   },
   {
@@ -94,30 +84,42 @@ const FEATURED: ExperimentCardProps[] = [
     title: "Breaking the Silos",
     subtitle: "Your data, in the AI tool you already use.",
     description: "RideView MCP lets your users bring their favorite AI assistant to their fleet data.",
+    cta: "Learn more",
+    media: (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/experiments/breaking-the-silos.jpg"
+        alt="Databases and LightMetrics AI combined via MCP"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+      />
+    ),
+  },
+  {
+    category: "create",
+    title: "Talk to Data",
+    subtitle: "Build your own reports",
+    description: "Create custom reports from your fleet data using plain-language.",
     cta: "Try it now",
     media: (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 p-6">
-        <div className="flex h-full w-[78%] flex-col overflow-hidden rounded-2xl border-4 border-neutral-900/90 bg-white p-3 shadow-2xl">
-          <div className="mb-2 flex items-center gap-1.5">
-            <BarChart3 className="h-3.5 w-3.5 text-blue-500" />
-            <span className="h-2 w-14 rounded-full bg-neutral-200" />
-          </div>
-          <div className="flex flex-1 items-end gap-2">
-            {[40, 65, 45, 80, 55].map((h, i) => (
-              <span
-                key={i}
-                className="flex-1 rounded-t-md bg-gradient-to-t from-blue-500 to-sky-300"
-                style={{ height: `${h}%` }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/experiments/talk-to-data.jpg"
+        alt="Building custom fleet reports in plain language"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+      />
     ),
   },
 ];
 
 const CARD_WIDTH = 340;
+
+// Every showcase card shares a plain white surface (no category tint) and
+// Agentic LISA's (category "create") pink CTA color, regardless of the card's
+// own category. --gl-cat-fill drives the "Try it now" link color.
+const CARD_STYLE = {
+  background: "#ffffff",
+  "--gl-cat-fill": "#F267EB",
+} as CSSProperties;
 
 const container = {
   hidden: {},
@@ -129,8 +131,8 @@ const item = {
 };
 
 export function ExperimentsShowcase() {
-  const topRow = FEATURED.slice(0, 2);
-  const bottomRow = FEATURED.slice(2, 5);
+  const topRow = FEATURED.slice(0, 3);
+  const bottomRow = FEATURED.slice(3, 6);
 
   return (
     <section id="experiments" className="relative pt-8 pb-32">
@@ -143,7 +145,7 @@ export function ExperimentsShowcase() {
         className="pointer-events-none absolute -top-24 right-0 h-[480px] w-[480px] rounded-full bg-emerald-300/45 blur-[90px]"
       />
 
-      <p className="relative z-10 mb-4 text-center text-lg text-[var(--gl-color-on-surface-subtle)]">
+      <p className="relative z-10 -mt-[200px] mb-4 text-center text-lg text-[var(--gl-color-on-surface-subtle)]">
         Join us from day one.
       </p>
       <h2 className="relative z-10 mx-auto mb-20 max-w-[130rem] px-8 text-center text-[3rem] font-medium leading-tight text-black sm:text-[5.25rem]">
@@ -162,14 +164,14 @@ export function ExperimentsShowcase() {
         <div className="flex flex-nowrap justify-center gap-6">
           {topRow.map((f) => (
             <motion.div key={f.title} variants={item} className="flex" style={{ width: CARD_WIDTH }}>
-              <ExperimentCard {...f} />
+              <ExperimentCard {...f} style={CARD_STYLE} />
             </motion.div>
           ))}
         </div>
         <div className="flex flex-nowrap justify-center gap-6">
           {bottomRow.map((f) => (
             <motion.div key={f.title} variants={item} className="flex" style={{ width: CARD_WIDTH }}>
-              <ExperimentCard {...f} />
+              <ExperimentCard {...f} style={CARD_STYLE} />
             </motion.div>
           ))}
         </div>
