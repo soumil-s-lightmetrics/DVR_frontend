@@ -224,6 +224,7 @@ const FRIENDLY_KEY = { driverId: 'Driver', assetId: 'Asset', type: 'Type' }
 export function ConfirmDvrCard({ payload, onSubmit, onCancel, tripBounds }) {
   const { params, maxDurationMinutes: maxMin, videoFormatOptions, resolutionOptions } = payload
   const clipStartRaw = params.clipStart
+  const clipEndRaw = params.clipEnd
   const isTimelapse = params.type === 'timelapse'
   const cardLabel = isTimelapse ? 'Confirm timelapse request' : 'Confirm DVR clip request'
   const defaultDurationMin = maxMin === 3 ? 0.5 : 15
@@ -236,18 +237,17 @@ export function ConfirmDvrCard({ payload, onSubmit, onCancel, tripBounds }) {
 
   const [format, setFormat] = useState(videoFormatOptions[0]?.value)
   const [resolution, setResolution] = useState(resolutionOptions[0])
-  // Default straight from the trip's own start time when it's known — same
-  // source used for the min/max bounds, so there's no way for the default to
-  // disagree with the window it's constrained to (unlike trusting the
-  // backend's clipStart, which isn't always the same trip). Only falls back
-  // to the backend-provided clipStart when we have no trip data at all.
-  const [clipStart, setClipStart] = useState(() => tripStart || fmtClip(clipStartRaw))
-  const [clipEnd, setClipEnd] = useState(() => {
-    if (!tripStart) return computeClipEnd(clipStartRaw, defaultDurationMin)
-    let end = addMinutesToClip(tripStart, Math.min(maxMin, defaultDurationMin))
-    if (tripEnd && diffMinutesClip(end, tripEnd) < 0) end = tripEnd
-    return end
-  })
+  // The confirm_dvr interrupt's own clipStart/clipEnd are the backend's
+  // authoritative, already-resolved window for THIS request — always trust
+  // them for the initial display, never fall back to tripBounds (a
+  // heuristic, client-side trip match that can legitimately point at the
+  // wrong trip's startTimeUTC/lastPinged). tripStart/tripEnd above are still
+  // used below to clamp/validate the user's own manual edits — that's a
+  // separate, legitimate use of trip data from what populates the defaults.
+  const [clipStart, setClipStart] = useState(() => fmtClip(clipStartRaw))
+  const [clipEnd, setClipEnd] = useState(() =>
+    clipEndRaw ? fmtClip(clipEndRaw) : computeClipEnd(clipStartRaw, defaultDurationMin),
+  )
 
   // Show the driver's name alongside their ID — resolved from the same trip
   // match used for the clip-time bounds, not a separate lookup.
