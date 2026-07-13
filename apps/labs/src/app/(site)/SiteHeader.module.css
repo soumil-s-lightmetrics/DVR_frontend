@@ -33,6 +33,13 @@
   color: var(--gl-color-on-surface);
 }
 
+.logoImg {
+  height: 3.2rem;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .nav {
   position: absolute;
   left: 50%;

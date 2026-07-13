@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 // owns its own styles and layout without bleeding into the others.
 export const metadata: Metadata = {
   title: "LM Labs",
+  icons: { icon: "/images/lmlabs.webp" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
