@@ -1,0 +1,220 @@
+.page {
+  min-height: 100%;
+  background: var(--gl-color-surface);
+  color: var(--gl-color-on-surface);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gl-space-xl);
+  padding: var(--gl-space-lg) var(--gl-space-2xl);
+  border-bottom: 1px solid var(--gl-color-border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--gl-space-md);
+  font-size: 2.2rem;
+  font-weight: var(--gl-font-weight-medium);
+  color: var(--gl-color-on-surface);
+}
+
+.hero {
+  max-width: var(--gl-content-max-width);
+  margin: 0 auto;
+  padding: var(--gl-space-6xl) var(--gl-inset) var(--gl-space-4xl);
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 0.6rem 1.6rem;
+  border-radius: var(--gl-radius-pill);
+  background: var(--gl-cat-accent-soft);
+  color: var(--gl-cat-fill);
+  font-size: 1.3rem;
+  font-weight: var(--gl-font-weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin-top: var(--gl-space-lg);
+  max-width: 90rem;
+  font-size: clamp(3.2rem, 5vw, 5.4rem);
+  font-weight: var(--gl-font-weight-medium);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  margin-top: var(--gl-space-lg);
+  max-width: 76rem;
+  font-size: 1.9rem;
+  line-height: 1.55;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.section {
+  max-width: 96rem;
+  margin: 0 auto;
+  padding: var(--gl-space-4xl) var(--gl-inset);
+}
+
+.sectionTitle {
+  font-size: 3rem;
+  font-weight: var(--gl-font-weight-medium);
+  margin-bottom: var(--gl-space-xl);
+}
+
+.subsectionTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: var(--gl-space-2xl) 0 var(--gl-space-lg);
+}
+
+.paragraph {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  color: var(--gl-color-on-surface-subtle);
+  max-width: 76rem;
+}
+
+.valueGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gl-space-xl);
+}
+
+.valueCard {
+  background: var(--gl-color-white);
+  border: 1px solid var(--gl-color-border);
+  border-radius: var(--gl-radius-card);
+  padding: var(--gl-space-xl);
+}
+
+.valueCardTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--gl-cat-fill);
+  margin-bottom: var(--gl-space-2xs);
+}
+
+.valueCardBody {
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.tableWrap {
+  border: 1px solid var(--gl-color-border);
+  border-radius: var(--gl-radius-card);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: var(--gl-cat-bg-alt);
+  text-align: left;
+  padding: 1.4rem 1.8rem;
+  font-size: 1.3rem;
+  font-weight: var(--gl-font-weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.table td {
+  padding: 1.6rem 1.8rem;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  border-top: 1px solid var(--gl-color-border);
+}
+
+.table td:first-child {
+  font-weight: var(--gl-font-weight-medium);
+  white-space: nowrap;
+}
+
+.steps {
+  list-style: none;
+  counter-reset: step;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gl-space-xl);
+}
+
+.step {
+  position: relative;
+  padding-left: 4.8rem;
+  counter-increment: step;
+}
+
+.step::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: var(--gl-cat-fill);
+  color: var(--gl-color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.stepTitle {
+  font-size: 1.7rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.stepBody {
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.subList {
+  margin-top: var(--gl-space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gl-space-2xs);
+}
+
+.subList li {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.subList strong {
+  color: var(--gl-color-on-surface);
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--gl-color-border);
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.4rem;
+  font-size: 0.9em;
+}
+
+@media (width < 700px) {
+  .valueGrid {
+    grid-template-columns: 1fr;
+  }
+  .table {
+    font-size: 1.3rem;
+  }
+}

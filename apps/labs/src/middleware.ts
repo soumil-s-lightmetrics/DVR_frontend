@@ -6,7 +6,17 @@ import { SESSION_COOKIE_NAME } from "@/utils/auth-constants";
 // public — it's where the external auth system (master.lightmetrics.co)
 // lands users with a fresh token; that route handler is what actually sets
 // the session cookie checked here.
+//
+// Local-only escape hatch: set SKIP_AUTH=true in .env.local to skip the check
+// entirely. Gated on NODE_ENV too so this can never take effect in a real
+// (production) build/deploy, even if SKIP_AUTH leaked into that environment.
+const SKIP_AUTH = process.env.NODE_ENV !== "production" && process.env.SKIP_AUTH === "true";
+
 export async function middleware(request: NextRequest) {
+  if (SKIP_AUTH) {
+    return NextResponse.next();
+  }
+
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   if (token) {

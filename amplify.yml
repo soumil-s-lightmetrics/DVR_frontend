@@ -13,6 +13,8 @@
 #     by middleware.ts/master-login to gate the whole site
 #   GEMINI_API_KEY (required), GEMINI_MODEL (optional) — used by /api/analyze
 #   BACKEND_URL, NEXT_PUBLIC_WS_URL — used by /dvr-request-flow
+#   NEXT_PUBLIC_AGENTIC_LISA_CHATBOT_URL — used by /agentic-lisa (iframed
+#     chatbot URL, includes its own access token as a query param)
 version: 1
 applications:
   - appRoot: apps/labs
@@ -29,7 +31,7 @@ applications:
             # runtime. AUTH_* are read at module scope by jwt-verifier.ts (imported
             # by middleware.ts), which Next evaluates while collecting page data
             # during build too, so they must land here before the build command runs.
-            - env | grep -e AUTH_ISSUER -e AUTH_AUDIENCE -e AUTH_JWKS_URI -e AUTH_LOGIN_URL -e GEMINI_API_KEY -e GEMINI_MODEL -e BACKEND_URL -e VIDEORAG_EMBED_TOKEN >> .env.production || true
+            - env | grep -e AUTH_ISSUER -e AUTH_AUDIENCE -e AUTH_JWKS_URI -e AUTH_LOGIN_URL -e NEXT_PUBLIC_AGENTIC_LISA_CHATBOT_URL -e GEMINI_API_KEY -e GEMINI_MODEL -e BACKEND_URL -e VIDEORAG_EMBED_TOKEN >> .env.production || true
             - npx turbo run build --filter=labs-clone
       artifacts:
         baseDirectory: .next

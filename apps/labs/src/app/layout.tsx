@@ -8,6 +8,13 @@ export const metadata: Metadata = {
   icons: { icon: "/images/lmlabs.webp" },
 };
 
+// Every route is meant to require a valid session (see middleware.ts). Without
+// this, pages with no dynamic data get prerendered as static HTML with a
+// long-lived Cache-Control; on Amplify's CloudFront-fronted compute hosting,
+// a cached hit is served straight from the edge and never reaches the origin
+// — meaning middleware (and the auth check) never runs at all.
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
