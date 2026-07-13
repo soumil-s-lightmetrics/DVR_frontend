@@ -306,7 +306,31 @@ export default function App() {
   }
 
   // ── chip / trip selection ─────────────────────────────────────────────
-  const onStage = useCallback((entry) => commitCollected([...collectedRef.current, entry]), [commitCollected])
+  // Keyed identity per option — used to stop the same driver/asset/trip/event
+  // from being staged twice (e.g. picking "Robert Lee" again via the @
+  // dropdown produced a second identical chip). DateRange is a special case:
+  // only one range makes sense at a time, so a new pick replaces the old one
+  // rather than being treated as a "duplicate" and silently dropped.
+  const chipKey = (e) => {
+    if (e.option === 'Drivers') return e.selectedItem.driverId
+    if (e.option === 'Assets') return e.selectedItem.assetId
+    if (e.option === 'Trips') return e.selectedItem.tripId
+    if (e.option === 'Event Types') return e.selectedItem.event_type
+    return null
+  }
+  const onStage = useCallback(
+    (entry) => {
+      const current = collectedRef.current
+      if (entry.option === 'DateRange') {
+        commitCollected([...current.filter((e) => e.option !== 'DateRange'), entry])
+        return
+      }
+      const isDuplicate = current.some((e) => e.option === entry.option && chipKey(e) === chipKey(entry))
+      if (isDuplicate) return
+      commitCollected([...current, entry])
+    },
+    [commitCollected],
+  )
   const onRemoveChip = useCallback(
     (idx) => commitCollected(collectedRef.current.filter((_, i) => i !== idx)),
     [commitCollected],
