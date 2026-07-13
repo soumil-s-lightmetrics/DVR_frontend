@@ -113,11 +113,19 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:var(--
    translucency + blur is what lets the trip show through underneath, rather
    than dimming the row itself. Laid out as a single horizontal line so it
    never grows past the row's own height. */
-.trip-type-popup-anchor{position:absolute;z-index:30;overflow:hidden;animation:popup-in .18s ease-out}
-.trip-type-popup{position:relative;width:100%;height:100%;background:rgba(255,255,255,0.9);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);border:1px solid var(--purple-border);border-radius:8px;box-shadow:var(--shadow-md);padding:0 44px 0 16px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;flex-wrap:nowrap;overflow:hidden}
-.trip-type-popup-close{position:absolute;top:50%;right:8px;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:var(--surface);color:var(--text-tri);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.trip-type-popup-close:hover{background:var(--border-lt);color:var(--text)}
-.trip-type-popup-title{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;flex-shrink:0}
+/* rendered as a normal child of the selected row (see CanvasPanel/TripRow),
+   not positioned via getBoundingClientRect against some ancestor — it scrolls
+   in the same paint as the row itself, no JS recompute, no lag. */
+.trip-type-popup-anchor{position:absolute;inset:0;z-index:5;overflow:hidden;animation:popup-in .18s ease-out}
+.trip-type-popup{position:relative;width:100%;height:100%;background:rgba(128,40,114,0.88);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);border:1px solid var(--purple-light);border-radius:8px;box-shadow:var(--shadow-md);padding:0 44px 0 16px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;flex-wrap:nowrap;overflow:hidden;font-family:inherit}
+/* buttons don't inherit font-family from an ancestor by default (browsers
+   reset form controls to their own UA font) — has to be set explicitly here
+   to match the chat's Inter font rather than falling back to system-ui */
+.trip-type-popup-close{position:absolute;top:50%;right:8px;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit}
+.trip-type-popup-close:hover{background:#fff;color:var(--purple)}
+.trip-type-popup-title{font-family:inherit;font-size:12px;font-weight:600;color:#fff;white-space:nowrap;flex-shrink:0}
+.trip-type-popup .action-chip{background:rgba(255,255,255,0.12);border-color:#fff;color:#fff}
+.trip-type-popup .action-chip:hover{background:#fff;color:var(--purple)}
 .action-chips-compact{padding:0;gap:8px;flex-wrap:nowrap}
 .action-chips-compact .action-chip{font-size:11px;padding:5px 10px;white-space:nowrap}
 @keyframes popup-in{from{opacity:0}to{opacity:1}}
@@ -199,11 +207,13 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:var(--
 .tt-row.expired-row{opacity:.75}
 /* FIX 3: selected row gets a clearly labeled left border + tint, not just a plain highlight */
 .tt-row.tt-row-selected{background:var(--purple-dim);box-shadow:inset 3px 0 0 var(--purple)}
+.tt-row.tt-row-popup-host{position:relative}
 .tt-col{overflow:hidden;text-overflow:ellipsis}
 .col-asset{width:18%;flex-shrink:0}.col-driver{width:12%;flex-shrink:0}.col-start{width:14%;flex-shrink:0}
 .col-pinged{width:13%;flex-shrink:0}.col-events{width:18%;flex-shrink:0}.col-dvr{width:13%;flex-shrink:0}.col-action{width:12%;flex-shrink:0;text-align:right}
 .tt-asset{font-size:13px;font-weight:500;color:var(--text)}.tt-trip{font-size:10px;color:var(--text-tri);margin-top:1px}
 .tt-cell{font-size:12px;color:var(--text);white-space:nowrap}
+.col-driver.tt-cell{white-space:normal;overflow-wrap:break-word;word-break:break-word;text-overflow:clip;line-height:1.4}
 .pinged-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
 .badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;white-space:nowrap;display:inline-block}
 .badge-available{background:#ecfdf5;color:#065f46}.badge-expiring{background:#fef3c7;color:#92400e}.badge-expired{background:#f3f4f6;color:#6b7280}

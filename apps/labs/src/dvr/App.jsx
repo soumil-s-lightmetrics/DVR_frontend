@@ -65,10 +65,18 @@ export default function App() {
       }
       if (p.message === 'show_results') {
         setGraphPaused(true)
-        if (p.first) {
-          if (p.filters) applyBackendFilterChips(p.filters)
-          renderTripResults(p.trips, p.summary)
-        }
+        // Chips and the trips table must reflect whatever this interrupt's
+        // filters/trips are, every time — not just on the very first
+        // show_results of a turn. A chained turn (e.g. answer an
+        // ask-timestamp prompt, then get a follow-up show_results with fresh
+        // trips) sends p.first: false for that later interrupt even though
+        // it's the current, authoritative dataset; gating the state updates
+        // behind p.first left both the chip row and the trips table stuck on
+        // whatever was shown before the chained interrupt. p.first still
+        // controls whether to re-announce the intro chat messages, so we
+        // don't spam "Results are shown in the panel" on every interrupt.
+        if (p.filters) applyBackendFilterChips(p.filters)
+        renderTripResults(p.trips, p.summary, p.first)
         return
       }
       if (p.message === 'confirm_dvr') {
@@ -129,7 +137,17 @@ export default function App() {
     const items = []
     if (filters.driver)
       items.push({ option: 'Drivers', selectedItem: { driverId: filters.driver.driverId, driverName: filters.driver.driverName } })
-    if (filters.asset) items.push({ option: 'Assets', selectedItem: { assetId: filters.asset } })
+    // filters.asset comes back from the backend as [] (not null/undefined)
+    // when there's no asset filter — and [] is truthy in JS, so a naive
+    // `if (filters.asset)` stages a bogus Assets chip with assetId set to an
+    // *array* instead of a string. That malformed value then flows into every
+    // later resume_graph/autocomplete_result on this thread and eventually
+    // gets checkpointed as chosen_asset_id = [[]] on the backend — which
+    // fails AgentState's pydantic validation on every future graph.invoke()
+    // for that thread, silently breaking the whole conversation (including
+    // right after a DVR submit, since that's just the next invoke to run).
+    const assetVal = Array.isArray(filters.asset) ? filters.asset[0] : filters.asset
+    if (assetVal) items.push({ option: 'Assets', selectedItem: { assetId: assetVal } })
     if (filters.events && filters.events.length)
       filters.events.forEach((ev) => items.push({ option: 'Event Types', selectedItem: { event_type: ev } }))
     // Guard against invalid/epoch timestamps so a bogus "1 January 1970" chip never renders.
@@ -146,12 +164,35 @@ export default function App() {
       }
     }
     commitCollected(items)
+    // The chips shown on the message that triggered this response were
+    // snapshotted at send-time — before the backend had a chance to parse
+    // filters out of the free-text query (e.g. "from 24th June - 28th June").
+    // Retroactively replace that message's chips with what was actually
+    // extracted, so it doesn't keep showing a stale/previous filter that
+    // doesn't match what the user just typed.
+    const newChips = buildMsgChips(items)
+    setMessages((m) => {
+      for (let i = m.length - 1; i >= 0; i--) {
+        if (m[i].kind === 'user') {
+          const updated = [...m]
+          updated[i] = { ...updated[i], chips: newChips }
+          return updated
+        }
+      }
+      return m
+    })
   }
 
   // ── trip results + success ────────────────────────────────────────────
-  function renderTripResults(trips, sum) {
+  // announce: whether to also post the intro chat messages ("Results are
+  // shown in the panel...") — true for a turn's first show_results, false
+  // for a later show_results in the same turn (e.g. after a chained
+  // ask-timestamp prompt), so re-renders don't spam duplicate chat messages
+  // while still always updating what's actually shown in the panel.
+  function renderTripResults(trips, sum, announce = true) {
     setCurrentTrips(trips)
     setSummary(sum || '')
+    if (!announce) return
     appendBot((sum ? sum + ' ' : '') + 'Results are shown in the panel.')
     if (trips.length > 0) {
       appendBot('Would you like to raise a footage request for any of these trips?')
@@ -173,12 +214,18 @@ export default function App() {
   // ── outbound query helpers ────────────────────────────────────────────
   function buildTagCtx(items) {
     return items
-      .filter((e) => e.option !== 'DateRange')
       .map((e) => {
         if (e.option === 'Drivers') return `[Driver: ${e.selectedItem.driverName || e.selectedItem.driverId}]`
         if (e.option === 'Assets') return `[Asset: ${e.selectedItem.assetId}]`
         if (e.option === 'Trips') return `[Trip: ${e.selectedItem.tripId}]`
         if (e.option === 'Event Types') return `[Event: ${e.selectedItem.event_type}]`
+        // A staged DateRange chip has to reach the backend as a tag too — it
+        // was previously filtered out here entirely, so a user could pick a
+        // visible date-range chip, hit send, and have the backend receive no
+        // date info at all (then re-prompt for the range it was just given).
+        // ISO timestamps, not the display label, since that's what the
+        // backend's tag parser expects.
+        if (e.option === 'DateRange') return `[DateRange: ${e.selectedItem.start} to ${e.selectedItem.end}]`
         return ''
       })
       .filter(Boolean)
