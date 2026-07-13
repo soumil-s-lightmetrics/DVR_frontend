@@ -1,15 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+// Fleet loaded automatically on first mount, so the chatbot is usable without
+// the user having to type an ID and click "Load fleet" first.
+const DEFAULT_FLEET_ID = 'acmetransport'
 
 // Top bar: fleet loader, connection status, new-chat button.
 export default function TopBar({ connected, onLoadFleet, onNewThread }) {
-  const [fleetId, setFleetId] = useState('')
+  const [fleetId, setFleetId] = useState(DEFAULT_FLEET_ID)
   const [loadState, setLoadState] = useState('idle') // idle | loading | loaded | error
+  const autoLoadedRef = useRef(false)
 
   const loadLabel =
     loadState === 'loading' ? 'Loading…' : loadState === 'loaded' ? 'Loaded' : loadState === 'error' ? 'Error' : 'Load fleet'
 
-  async function handleLoad() {
-    const fid = fleetId.trim()
+  async function handleLoad(fid = fleetId.trim()) {
     if (!fid) return
     setLoadState('loading')
     try {
@@ -22,6 +26,13 @@ export default function TopBar({ connected, onLoadFleet, onNewThread }) {
       setTimeout(() => setLoadState('idle'), 2000)
     }
   }
+
+  useEffect(() => {
+    if (autoLoadedRef.current) return
+    autoLoadedRef.current = true
+    handleLoad(DEFAULT_FLEET_ID)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <header className="topbar">
