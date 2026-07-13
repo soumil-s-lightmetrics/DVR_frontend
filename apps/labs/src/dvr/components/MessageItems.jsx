@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { MIcon } from './common.jsx'
 import {
   fmtClip,
@@ -41,7 +42,9 @@ export function BotMessage({ text }) {
       </div>
       <div className="msg-body">
         <div className="msg-role">DVR assistant</div>
-        <div className="gen-response">{text}</div>
+        <div className="gen-response">
+          <ReactMarkdown>{text}</ReactMarkdown>
+        </div>
       </div>
     </div>
   )
