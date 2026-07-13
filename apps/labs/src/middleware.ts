@@ -7,9 +7,6 @@ import { SESSION_COOKIE_NAME } from "@/utils/auth-constants";
 // lands users with a fresh token; that route handler is what actually sets
 // the session cookie checked here.
 export async function middleware(request: NextRequest) {
-  // TEMPORARY: auth check disabled for local testing. Revert before committing.
-  return NextResponse.next();
-
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   if (token) {
