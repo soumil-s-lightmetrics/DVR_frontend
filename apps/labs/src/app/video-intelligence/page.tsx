@@ -1,62 +1,35 @@
-// "use client";
+export const metadata = {
+  title: "Video Intelligence",
+  icons: { icon: "/video-intelligence.svg" },
+};
 
-// import { useRef } from "react";
+// Read the shared secret at request time (not baked in at build) so it can be
+// set purely as a runtime env var on the server.
+export const dynamic = "force-dynamic";
 
-// // The Video Intelligence portal lives on a separate deployment
-// // (videorag.sdo.lightmetrics.co). We embed it full-screen here so it is reachable
-// // under the same origin (labs.lightmetrics.co/video-intelligence) like the other
-// // experiments, instead of navigating the user off to a different domain.
-// const PORTAL_URL = "https://videorag.sdo.lightmetrics.co/";
-// // postMessage's targetOrigin must be the exact origin (no path) — using "*"
-// // would let the password leak to whatever the iframe happens to be showing
-// // if it ever navigates elsewhere.
-// const PORTAL_ORIGIN = "https://videorag.sdo.lightmetrics.co";
-
-// export default function Page() {
-//   const iframeRef = useRef<HTMLIFrameElement>(null);
-
-//   return (
-//     <iframe
-//       ref={iframeRef}
-//       src={PORTAL_URL}
-//       title="Video Intelligence"
-//       allow="camera; microphone; clipboard-read; clipboard-write; fullscreen"
-//       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
-//       onLoad={() => {
-//         // Skips videorag's own separate password prompt so users don't have
-//         // to log in twice. videorag listens for this message and auto-fills
-//         // + submits its login form; see its own code for the receiving side.
-//         // NEXT_PUBLIC_* is inlined into the client bundle at build time, so
-//         // this password is visible to anyone who inspects this page — it's
-//         // not actually secret once set.
-//         iframeRef.current?.contentWindow?.postMessage(
-//           {
-//             type: "videorag-auto-login",
-//             password: process.env.NEXT_PUBLIC_VIDEORAG_SHARED_PASSWORD,
-//           },
-//           PORTAL_ORIGIN
-//         );
-//       }}
-//     />
-//   );
-// }
-
-
-// The Video Intelligence portal lives on a separate deployment
-// (videorag.sdo.lightmetrics.co). We embed it full-screen here so it is reachable
-// under the same origin (labs.lightmetrics.co/video-intelligence) like the other
-// experiments, instead of navigating the user off to a different domain.
+// The Video Intelligence portal (videorag) lives on a separate deployment and
+// normally shows its own password gate. We embed it full-screen here and pass a
+// shared secret token in the URL; videorag skips its password gate only when the
+// token matches (see its app.py `_is_embedded_by_labs`). The token comes from a
+// server-only env var, so it is NOT inlined into the client JS bundle.
 //
-// videorag detects that it's been iframed by this origin via document.referrer
-// and skips its own password screen automatically — no message passing needed.
+// SECURITY: the token still appears in this page's server-rendered HTML (as the
+// iframe src) and in videorag's own URL, so anyone who can view the labs page
+// source can read it. This gates *direct* access to videorag (you must know the
+// token) but it is not a true secret. For real protection, upgrade to a
+// short-lived HMAC-signed token (see the note I left in chat).
 const PORTAL_URL = "https://videorag.sdo.lightmetrics.co/";
 
 export default function Page() {
+  const token = process.env.VIDEORAG_EMBED_TOKEN ?? "";
+  const src = token
+    ? `${PORTAL_URL}?embed_token=${encodeURIComponent(token)}`
+    : PORTAL_URL;
+
   return (
     <iframe
-      src={PORTAL_URL}
+      src={src}
       title="Video Intelligence"
-      referrerPolicy="strict-origin-when-cross-origin"
       allow="camera; microphone; clipboard-read; clipboard-write; fullscreen"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
     />

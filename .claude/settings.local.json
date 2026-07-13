@@ -126,7 +126,8 @@
       "Bash(rm -rf /tmp/cdp-profileI)",
       "Bash(timeout 60 node shot.mjs)",
       "Bash(xargs -r kill)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(python3 -m py_compile app.py)"
     ],
     "additionalDirectories": [
       "/Users/shriyansohan/Desktop/LMLabs",
