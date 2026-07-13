@@ -12,6 +12,11 @@ const DVR_REQUEST_URL = "/dvr-request-flow";
 // linking out to its separate deployment (videorag.sdo.lightmetrics.co).
 const VIDEO_INTELLIGENCE_URL = "/video-intelligence";
 const MCP_URL = "/mcp";
+// Talk to Data links out to the existing RideView reports dashboard rather than
+// a page inside this app.
+const TALK_TO_DATA_URL = "https://dashboard-qa.lightmetrics.co/reports?tab=overview";
+// Agentic LISA is embedded (iframed) under this app, like Video Intelligence.
+const AGENTIC_LISA_URL = "/agentic-lisa";
 
 const FEATURED: ExperimentCardProps[] = [
   {
@@ -71,6 +76,8 @@ const FEATURED: ExperimentCardProps[] = [
     subtitle: "Just ask your fleet data anything.",
     description: "A conversational assistant for discovering what matters — safety, coaching, camera health, and more — without digging through dashboards.",
     cta: "Try it now",
+    href: AGENTIC_LISA_URL,
+    target: "_blank",
     media: (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -103,10 +110,12 @@ const FEATURED: ExperimentCardProps[] = [
     subtitle: "Build your own reports",
     description: "Create custom reports from your fleet data using plain-language.",
     cta: "Try it now",
+    href: TALK_TO_DATA_URL,
+    target: "_blank",
     media: (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="/experiments/talk-to-data.jpg"
+        src="/experiments/talk-to-data.png"
         alt="Building custom fleet reports in plain language"
         className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
       />
