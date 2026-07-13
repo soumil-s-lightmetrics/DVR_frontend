@@ -43,8 +43,15 @@ cp apps/mounting-verification/.env.local.example apps/mounting-verification/.env
 | mounting-verification | `GEMINI_API_KEY` | yes | Server-side only; used by the `/api/analyze` route. |
 | mounting-verification | `GEMINI_MODEL` | no | Defaults to `gemini-3-flash-preview`. |
 | labs | `NEXT_PUBLIC_MOUNTING_VERIFICATION_URL` | no (prod) | URL the "Mounting Verification" card links to. Defaults to `http://localhost:3001` in dev. `NEXT_PUBLIC_*` is baked in at **build time**. |
+| labs | `NEXT_PUBLIC_VIDEORAG_SHARED_PASSWORD` | yes | Shared password `postMessage`d into the `/video-intelligence` videorag iframe on load, so users don't hit a second login. Ships in the client bundle — not actually secret once set. |
+| labs | `AUTH_ISSUER`, `AUTH_AUDIENCE`, `AUTH_JWKS_URI` | yes | External auth system's (white-qa.lightmetrics.co) token issuer/audience/JWKS, used to verify the RS256 access token server-side. No `NEXT_PUBLIC_` prefix — never sent to the client. |
+| labs | `AUTH_LOGIN_URL` | yes | Where middleware redirects a request with no valid session (master-qa.lightmetrics.co). |
 
 > Only `.env*.local` is git-ignored. Never put real secrets in a plain `.env` file — it would be committed.
+
+## Auth
+
+Every route in `apps/labs` requires a valid session — an external system (white-qa.lightmetrics.co) owns login and mints a 1h-lived RS256 access token, landing users at `/auth/master-login?access_token=<jwt>`. That route handler (`apps/labs/src/app/auth/master-login/route.ts`) verifies the token against the JWKS (`apps/labs/src/utils/jwt-verifier.ts`, via `aws-jwt-verify`) and, if valid, sets it in an httpOnly session cookie before redirecting to `/`. `apps/labs/src/middleware.ts` re-verifies that cookie's token on every request; if it's missing, invalid, or expired, it redirects to `AUTH_LOGIN_URL` (`/api/*` requests get a 401 instead). There's no login UI in this app — it only verifies tokens minted elsewhere.
 
 ## Deploying to AWS Amplify
 
