@@ -11,6 +11,7 @@ const DVR_REQUEST_URL = "/dvr-request-flow";
 // Video Intelligence portal is embedded (iframed) under this app rather than
 // linking out to its separate deployment (videorag.sdo.lightmetrics.co).
 const VIDEO_INTELLIGENCE_URL = "/video-intelligence";
+const MCP_URL = "/mcp";
 
 const FEATURED: ExperimentCardProps[] = [
   {
@@ -85,6 +86,8 @@ const FEATURED: ExperimentCardProps[] = [
     subtitle: "Your data, in the AI tool you already use.",
     description: "RideView MCP lets your users bring their favorite AI assistant to their fleet data.",
     cta: "Learn more",
+    href: MCP_URL,
+    target: "_blank",
     media: (
       // eslint-disable-next-line @next/next/no-img-element
       <img
