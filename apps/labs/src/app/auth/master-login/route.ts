@@ -21,7 +21,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid access_token" }, { status: 401 });
   }
 
-  const response = NextResponse.redirect(new URL("/", request.url));
+  
+  // Behind Amplify's compute layer, request.url reflects the internal Host the
+  // Next.js process sees (e.g. localhost:3000), not the public domain the user
+  // is actually on — that arrives via x-forwarded-host/-proto instead.
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const origin = forwardedHost
+    ? `${request.headers.get("x-forwarded-proto") ?? "https"}://${forwardedHost}`
+    : request.nextUrl.origin;
+
+  const response = NextResponse.redirect(new URL("/", origin));
   response.cookies.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
