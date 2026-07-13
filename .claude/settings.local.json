@@ -124,7 +124,9 @@
       "Bash(mkdir -p /home/gowrish/Desktop/Projects/LMLabs/apps/labs/public/experiments)",
       "Bash(npx tsc *)",
       "Bash(rm -rf /tmp/cdp-profileI)",
-      "Bash(timeout 60 node shot.mjs)"
+      "Bash(timeout 60 node shot.mjs)",
+      "Bash(xargs -r kill)",
+      "Bash(npm run *)"
     ],
     "additionalDirectories": [
       "/Users/shriyansohan/Desktop/LMLabs",

@@ -3,13 +3,15 @@ import { MIcon, Highlight, SendIcon } from './common.jsx'
 import { CATEGORY_ICON, chipLabel } from '../lib/format.js'
 import { globalSearch, localSearch, stageEntry } from '../lib/search.js'
 
+// "Trips" is deliberately not a pickable category here — trip IDs aren't
+// something a user can recognize/pick by, unlike a driver name or asset ID.
+// Trips only get selected via "Use trip" on a row in the results table.
 const CATS = [
   { m: 'Drivers', i: 'person', l: 'Drivers' },
   { m: 'Assets', i: 'local_shipping', l: 'Assets' },
-  { m: 'Trips', i: 'route', l: 'Trips' },
   { m: 'Event Types', i: 'warning', l: 'Event types' },
 ]
-const GROUP_ORDER = ['Drivers', 'Assets', 'Trips', 'Event Types']
+const GROUP_ORDER = ['Drivers', 'Assets', 'Event Types']
 
 // Shared search input with @-mention autocomplete + selected-filter chips.
 // variant: 'landing' (text input, dropdown below) | 'chat' (textarea, dropdown above)
@@ -42,10 +44,21 @@ export default function SearchPill({
   }
 
   // Seed the input text from an external trigger (landing quick cards -> setQ).
+  // Optionally also jumps straight into the @-mention flow: `category` opens
+  // that category's item list directly (e.g. "Driver lookup" -> Drivers list),
+  // `openCats` opens the category picker itself (e.g. "Trip footage", where
+  // the user still needs to choose driver/asset/event to find the trip by).
   useEffect(() => {
     if (seed && seed.n) {
       setVal(seed.text)
+      textBeforeAtRef.current = seed.text
       focusInput()
+      if (seed.category) {
+        injectCat(seed.category)
+      } else if (seed.openCats) {
+        showCats()
+        setAcOpen(true)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed?.n])
@@ -98,7 +111,7 @@ export default function SearchPill({
     const ai = cur.lastIndexOf('@')
     textBeforeAtRef.current = ai !== -1 ? cur.slice(0, ai) : cur
     setSelectedCategory(cat)
-    setVal('@')
+    setVal(textBeforeAtRef.current + '@')
     sendWs({ type: 'autocomplete', option: cat, search: '', thread_id: threadId })
     runLocal(cat, '')
     setAcOpen(true)
@@ -152,7 +165,6 @@ export default function SearchPill({
     let ec = null
     if (ns.startsWith('drivers ')) ec = 'Drivers'
     else if (ns.startsWith('assets ')) ec = 'Assets'
-    else if (ns.startsWith('trips ')) ec = 'Trips'
     else if (ns.startsWith('event types ') || ns.startsWith('events ')) ec = 'Event Types'
     if (ec) {
       injectCat(ec)

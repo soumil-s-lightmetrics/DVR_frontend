@@ -6,11 +6,16 @@ import { fmtUtcDateTime } from '../lib/format.js'
 function SelectedTripBanner({ trip, onClear }) {
   if (!trip) return null
   const startFmt = fmtUtcDateTime(trip.startTimeUTC)
+  const isOngoing = trip.lastPingedLabel === 'Ongoing'
+  const endRaw = trip.endTimeUTC || trip.lastPinged
+  const endFmt = !isOngoing && endRaw ? fmtUtcDateTime(endRaw) : ''
   return (
     <div className="selected-trip-banner show">
       <span>
         <MIcon name="videocam" /> Selected for request: <strong>{trip.assetId || ''}</strong> · {trip.driverName || ''} ·{' '}
         {startFmt}
+        {endFmt ? ` – ${endFmt}` : ''}
+        {isOngoing ? ' (ongoing)' : ''}
       </span>
       <button className="stb-clear" onClick={onClear}>
         Clear

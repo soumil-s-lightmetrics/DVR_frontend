@@ -2,7 +2,10 @@ import "../../dvr/styles.css";
 
 export const metadata = {
   title: "Video Request — DVR Assistant",
-  icons: { icon: "/images/title_bar.jpg" },
+  // Cache-busted — browsers cache favicons very aggressively per-origin and
+  // often won't refetch a same-URL icon even on a hard reload. Bump the
+  // query value if the favicon needs to change again later.
+  icons: { icon: "/images/Favicon.png?v=2" },
 };
 
 export default function DvrLayout({ children }) {
