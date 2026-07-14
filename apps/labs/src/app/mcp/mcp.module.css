@@ -2,6 +2,9 @@
   min-height: 100%;
   background: var(--gl-color-surface);
   color: var(--gl-color-on-surface);
+  /* LightSpectrum Plum palette (DESIGN.md) — 800 is brand primary, 600 is one step lighter for accents */
+  --mcp-plum-primary: #8B2682;
+  --mcp-plum-secondary-deep: #C356BC;
 }
 
 .header {
@@ -26,22 +29,11 @@
   max-width: var(--gl-content-max-width);
   margin: 0 auto;
   padding: var(--gl-space-6xl) var(--gl-inset) var(--gl-space-4xl);
-}
-
-.eyebrow {
-  display: inline-block;
-  padding: 0.6rem 1.6rem;
-  border-radius: var(--gl-radius-pill);
-  background: var(--gl-cat-accent-soft);
-  color: var(--gl-cat-fill);
-  font-size: 1.3rem;
-  font-weight: var(--gl-font-weight-medium);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-align: center;
 }
 
 .title {
-  margin-top: var(--gl-space-lg);
+  margin: var(--gl-space-lg) auto 0;
   max-width: 90rem;
   font-size: clamp(3.2rem, 5vw, 5.4rem);
   font-weight: var(--gl-font-weight-medium);
@@ -50,7 +42,7 @@
 }
 
 .lead {
-  margin-top: var(--gl-space-lg);
+  margin: var(--gl-space-lg) auto 0;
   max-width: 76rem;
   font-size: 1.9rem;
   line-height: 1.55;
@@ -91,6 +83,7 @@
 .valueCard {
   background: var(--gl-color-white);
   border: 1px solid var(--gl-color-border);
+  border-top: 0.4rem solid var(--mcp-plum-primary);
   border-radius: var(--gl-radius-card);
   padding: var(--gl-space-xl);
 }
@@ -98,7 +91,7 @@
 .valueCardTitle {
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--gl-cat-fill);
+  color: var(--mcp-plum-primary);
   margin-bottom: var(--gl-space-2xs);
 }
 
@@ -109,7 +102,7 @@
 }
 
 .tableWrap {
-  border: 1px solid var(--gl-color-border);
+  border: 1px solid var(--mcp-plum-primary);
   border-radius: var(--gl-radius-card);
   overflow: hidden;
 }
@@ -120,14 +113,14 @@
 }
 
 .table th {
-  background: var(--gl-cat-bg-alt);
+  background: var(--mcp-plum-primary);
   text-align: left;
   padding: 1.4rem 1.8rem;
   font-size: 1.3rem;
   font-weight: var(--gl-font-weight-medium);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--gl-color-on-surface-subtle);
+  color: var(--gl-color-white);
 }
 
 .table td {
@@ -164,7 +157,7 @@
   width: 3.2rem;
   height: 3.2rem;
   border-radius: 50%;
-  background: var(--gl-cat-fill);
+  background: var(--mcp-plum-secondary-deep);
   color: var(--gl-color-white);
   display: flex;
   align-items: center;
@@ -200,6 +193,110 @@
 
 .subList strong {
   color: var(--gl-color-on-surface);
+}
+
+.flow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--gl-space-sm);
+  margin-top: var(--gl-space-xl);
+}
+
+.flowCard {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: var(--gl-color-white);
+  border: 1px solid var(--gl-color-border);
+  border-radius: var(--gl-radius-card);
+  padding: var(--gl-space-lg);
+}
+
+.flowIcon {
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--mcp-plum-primary);
+  color: var(--gl-color-white);
+  margin-bottom: 0.4rem;
+}
+
+.flowStepNum {
+  font-size: 1.2rem;
+  font-weight: var(--gl-font-weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mcp-plum-primary);
+}
+
+.flowTitle {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.flowBody {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.flowDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.flowDetails li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 1.3rem;
+  line-height: 1.4;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.flowDetails svg {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  color: var(--mcp-plum-primary);
+}
+
+.flowDetails strong {
+  color: var(--gl-color-on-surface);
+}
+
+.flowArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--mcp-plum-primary);
+}
+
+.usageNote {
+  margin-top: var(--gl-space-2xl);
+  font-size: 1.6rem;
+  line-height: 1.6;
+  color: var(--gl-color-on-surface-subtle);
+  max-width: 76rem;
+}
+
+.usageNote strong {
+  color: var(--gl-color-on-surface);
+}
+
+@media (width < 900px) {
+  .flow {
+    flex-direction: column;
+  }
+  .flowArrow {
+    transform: rotate(90deg);
+  }
 }
 
 .code {

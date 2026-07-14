@@ -1,23 +1,25 @@
+import { Fragment } from "react";
 import { Reveal, Button } from "@lmlabs/ui";
+import { Settings, PlugZap, Server, Tag, Link2, KeyRound, CheckCircle2, ArrowRight } from "lucide-react";
 import { SiteFooter } from "../(site)/SiteFooter";
 import styles from "./mcp.module.css";
 
 const VALUE_PROPS = [
   {
     title: "Unified Access",
-    body: "Eliminates silos by connecting LLMs directly to internal REST/GraphQL APIs and external databases (SQL, NoSQL, Flat Files).",
+    body: "One place for every answer. LightMetrics connects the AI directly to your internal APIs and databases (SQL, NoSQL, flat files), so you're not stitching together reports from five different tools.",
   },
   {
     title: "Natural Language Exploration",
-    body: 'Fleet managers can ask complex questions—like "Compare fuel economy between top-performing drivers and their harsh braking events"—without writing code or SQL.',
+    body: 'Just ask. Fleet managers can pose complex questions—like "Compare fuel economy between top-performing drivers and their harsh braking events"—in plain English, no code or SQL required.',
   },
   {
     title: "Secure by Design",
-    body: "Only explicitly defined tools are exposed. The host application maintains full control over access, execution, and authentication.",
+    body: "You stay in control. Only the tools your team explicitly chooses to expose are available to the AI, so access, execution, and authentication never leave your hands.",
   },
   {
     title: "Accelerated Insights",
-    body: "TSPs no longer need to wait for custom API development for new reports; they can simply connect a data source and let the AI map the relationships.",
+    body: "New reports in days, not project cycles. TSPs no longer wait on custom API development—just connect a data source and start asking questions.",
   },
 ];
 
@@ -33,18 +35,19 @@ const ARCHITECTURE_STEPS = [
     title: "Exposes Tools",
     body: (
       <>
-        Registers functions like <span className={styles.code}>getFleetAggregate</span> or{" "}
-        <span className={styles.code}>createDVR</span> via an OpenAPI-like schema.
+        Makes your data available on request. It defines a clear set of actions—like pulling fleet stats (
+        <span className={styles.code}>getFleetAggregate</span>) or creating a driver report (
+        <span className={styles.code}>createDVR</span>)—that the AI is allowed to use.
       </>
     ),
   },
   {
     title: "Executes Calls",
-    body: "Listens for requests from the LLM, executes the relevant API or database query, and returns structured JSON.",
+    body: "Does the work behind the scenes. When the AI needs an answer, the server runs the right query and sends the results back.",
   },
   {
     title: "Translates Responses",
-    body: "The LLM interprets the JSON and provides a natural language response to the user.",
+    body: "Speaks your language. The AI turns that raw data into a plain-English answer you can act on, no dashboards required.",
   },
 ];
 
@@ -52,17 +55,20 @@ const CONFIG_STEPS = [
   {
     title: "Navigate to Settings",
     body: "In the Claude interface, locate the Custom Connectors or MCP Tools section within your account or workspace settings.",
+    Icon: Settings,
   },
   {
     title: "Add New Connector",
     body: "Select the option to add a Remote MCP Server.",
+    Icon: PlugZap,
   },
   {
     title: "Enter Server Details",
+    Icon: Server,
     details: [
-      { label: "Label", text: 'Provide a name (e.g., "LightMetrics Fleet API").' },
-      { label: "URL", text: "Enter the endpoint for your hosted MCP server." },
-      { label: "Authorization", text: "Select your authentication type (e.g., Header-based) and input your credentials." },
+      { label: "Label", text: 'Provide a name (e.g., "LightMetrics Fleet API").', Icon: Tag },
+      { label: "URL", text: "Enter the endpoint for your hosted MCP server.", Icon: Link2 },
+      { label: "Authorization", text: "Select your authentication type (e.g., Header-based) and input your credentials.", Icon: KeyRound },
     ],
   },
   {
@@ -73,6 +79,7 @@ const CONFIG_STEPS = [
         <span className={styles.code}>list_fleets</span>, <span className={styles.code}>get_driver_events</span>).
       </>
     ),
+    Icon: CheckCircle2,
   },
 ];
 
@@ -90,7 +97,6 @@ export default function McpPage() {
 
       <div className={styles.hero}>
         <Reveal>
-          <span className={styles.eyebrow}>MCP</span>
           <h1 className={styles.title}>Bridging Telematics with Intelligence: MCP &amp; LightMetrics</h1>
           <p className={styles.lead}>
             The Model Context Protocol (MCP) acts as a &ldquo;USB-C for AI,&rdquo; providing a universal, open
@@ -165,28 +171,41 @@ export default function McpPage() {
           </p>
 
           <h3 className={styles.subsectionTitle}>Configuration Steps</h3>
-          <ol className={styles.steps}>
-            {CONFIG_STEPS.map((s) => (
-              <li key={s.title} className={styles.step}>
-                <p className={styles.stepTitle}>{s.title}</p>
-                {s.body && <p className={styles.stepBody}>{s.body}</p>}
-                {s.details && (
-                  <ul className={styles.subList}>
-                    {s.details.map((d) => (
-                      <li key={d.label}>
-                        <strong>{d.label}:</strong> {d.text}
-                      </li>
-                    ))}
-                  </ul>
+          <div className={styles.flow}>
+            {CONFIG_STEPS.map((s, i) => (
+              <Fragment key={s.title}>
+                <div className={styles.flowCard}>
+                  <div className={styles.flowIcon}>
+                    <s.Icon size={20} />
+                  </div>
+                  <p className={styles.flowStepNum}>Step {i + 1}</p>
+                  <p className={styles.flowTitle}>{s.title}</p>
+                  {s.body && <p className={styles.flowBody}>{s.body}</p>}
+                  {s.details && (
+                    <ul className={styles.flowDetails}>
+                      {s.details.map((d) => (
+                        <li key={d.label}>
+                          <d.Icon size={14} />
+                          <span>
+                            <strong>{d.label}:</strong> {d.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {i < CONFIG_STEPS.length - 1 && (
+                  <div className={styles.flowArrow}>
+                    <ArrowRight size={20} />
+                  </div>
                 )}
-              </li>
+              </Fragment>
             ))}
-          </ol>
+          </div>
 
-          <h3 className={styles.subsectionTitle}>Usage</h3>
-          <p className={styles.paragraph}>
-            Once connected, you can invoke these tools in any chat session. Claude will automatically determine
-            when to call a LightMetrics tool based on your natural language prompt.
+          <p className={styles.usageNote}>
+            <strong>Usage:</strong> Once connected, you can invoke these tools in any chat session. Claude will
+            automatically determine when to call a LightMetrics tool based on your natural language prompt.
           </p>
         </Reveal>
       </section>
