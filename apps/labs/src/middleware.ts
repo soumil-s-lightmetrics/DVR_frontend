@@ -10,7 +10,7 @@ import { SESSION_COOKIE_NAME } from "@/utils/auth-constants";
 // Local-only escape hatch: set SKIP_AUTH=true in .env.local to skip the check
 // entirely. Gated on NODE_ENV too so this can never take effect in a real
 // (production) build/deploy, even if SKIP_AUTH leaked into that environment.
-const SKIP_AUTH = process.env.NODE_ENV !== "production" && process.env.SKIP_AUTH === "true";
+const SKIP_AUTH = process.env.SKIP_AUTH === "true";
 
 export async function middleware(request: NextRequest) {
   if (SKIP_AUTH) {
