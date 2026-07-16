@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 // owns its own styles and layout without bleeding into the others.
 export const metadata: Metadata = {
   title: "LM Labs",
-  icons: { icon: "/images/lmlabs.webp" },
+  icons: { icon: "/images/lmlabs-favicon.png" },
 };
 
 // Every route is meant to require a valid session (see middleware.ts). Without

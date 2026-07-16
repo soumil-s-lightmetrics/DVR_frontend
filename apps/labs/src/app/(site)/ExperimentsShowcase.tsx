@@ -32,7 +32,7 @@ const FEATURED: ExperimentCardProps[] = [
       <img
         src="/experiments/agentic-dvr.jpg"
         alt="Requesting DVR videos via chat"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
       />
     ),
   },
@@ -49,7 +49,7 @@ const FEATURED: ExperimentCardProps[] = [
       <img
         src="/experiments/video-search.jpg"
         alt="Searching video with a chatbot in plain language"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
       />
     ),
   },
@@ -66,7 +66,7 @@ const FEATURED: ExperimentCardProps[] = [
       <img
         src="/experiments/ai-assisted-installation.jpg"
         alt="Dashcam mounting preview"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
       />
     ),
   },
@@ -83,7 +83,7 @@ const FEATURED: ExperimentCardProps[] = [
       <img
         src="/experiments/agentic-lisa.jpg"
         alt="Conversational assistant answering fleet data questions"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
       />
     ),
   },
@@ -100,7 +100,7 @@ const FEATURED: ExperimentCardProps[] = [
       <img
         src="/experiments/breaking-the-silos.jpg"
         alt="Databases and LightMetrics AI combined via MCP"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
       />
     ),
   },
@@ -117,7 +117,7 @@ const FEATURED: ExperimentCardProps[] = [
       <img
         src="/experiments/talk-to-data.png"
         alt="Building custom fleet reports in plain language"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-[#F6F6F7]"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
       />
     ),
   },
