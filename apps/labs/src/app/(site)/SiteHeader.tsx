@@ -56,7 +56,7 @@ export function SiteHeader() {
     <header className={cn(styles.header, onLight && styles.onLight)}>
       <a href="/" className={styles.logo}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/lmlabs.webp" alt="LM Labs logo" className={styles.logoImg} />
+        <img src="/images/lmlabs-logo.png" alt="LM Labs logo" className={styles.logoImg} />
         <span>LM Labs</span>
       </a>
 
