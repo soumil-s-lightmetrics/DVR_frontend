@@ -14,7 +14,7 @@ const VIDEO_INTELLIGENCE_URL = "/video-intelligence";
 const MCP_URL = "/mcp";
 // Talk to Data links out to the existing RideView reports dashboard rather than
 // a page inside this app.
-const TALK_TO_DATA_URL = "https://dashboard-qa.lightmetrics.co/reports?tab=overview";
+const TALK_TO_DATA_URL = "https://dashboard.lightmetrics.co/reports?tab=overview";
 // Agentic LISA is embedded (iframed) under this app, like Video Intelligence.
 const AGENTIC_LISA_URL = "/agentic-lisa";
 
