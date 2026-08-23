@@ -22,6 +22,13 @@ type SseEvent =
   | { type: "done"; usage: Record<string, number> }
   | { type: "error"; message: string };
 
+// Called directly from the browser (not through the Next.js proxy) so a slow
+// chat turn can stream past Amplify Hosting's fixed 30s SSR response timeout.
+// Auth is a short-lived, conversation-scoped token minted server-side via
+// /api/mcp-chat/conversations/[id]/stream-token - see that route and
+// mcp-trial/backend/app/stream_token.py.
+const BACKEND_URL = process.env.NEXT_PUBLIC_MCP_CHAT_BACKEND_URL;
+
 export default function ChatClient() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -33,6 +40,10 @@ export default function ChatClient() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    if (!BACKEND_URL) {
+      setInitError("NEXT_PUBLIC_MCP_CHAT_BACKEND_URL is not configured.");
+      return;
+    }
     let cancelled = false;
     fetch("/api/mcp-chat/conversations", { method: "POST" })
       .then((res) => res.json())
@@ -62,7 +73,7 @@ export default function ChatClient() {
 
   async function handleSend() {
     const text = input.trim();
-    if (!text || !conversationId || busy) return;
+    if (!text || !conversationId || busy || !BACKEND_URL) return;
 
     setInput("");
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", text }]);
@@ -73,9 +84,21 @@ export default function ChatClient() {
     let assistantAdded = false;
 
     try {
-      const res = await fetch(`/api/mcp-chat/conversations/${conversationId}/messages`, {
+      const tokenRes = await fetch(
+        `/api/mcp-chat/conversations/${conversationId}/stream-token`,
+        { method: "POST" },
+      );
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok || !tokenData?.token) {
+        throw new Error(tokenData?.error || "Failed to get a stream token.");
+      }
+
+      const res = await fetch(`${BACKEND_URL}/conversations/${conversationId}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-mcp-stream-token": tokenData.token,
+        },
         body: JSON.stringify({ content: text }),
       });
 
@@ -149,7 +172,7 @@ export default function ChatClient() {
     }
   }
 
-  const canSend = !busy && !!conversationId;
+  const canSend = !busy && !!conversationId && !!BACKEND_URL;
 
   return (
     <div className={styles.page}>
