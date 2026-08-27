@@ -33,6 +33,7 @@ export default function ChatClient() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [fleetId, setFleetId] = useState("");
   const [busy, setBusy] = useState(false);
   const [toolActivity, setToolActivity] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -99,7 +100,7 @@ export default function ChatClient() {
           "Content-Type": "application/json",
           "x-mcp-stream-token": tokenData.token,
         },
-        body: JSON.stringify({ content: text }),
+        body: JSON.stringify({ content: text, fleet_id: fleetId.trim() || undefined }),
       });
 
       if (!res.body) throw new Error("No response body.");
@@ -181,6 +182,14 @@ export default function ChatClient() {
           &larr; MCP overview
         </Button>
         <span className={styles.topbarTitle}>Data Chat</span>
+        <input
+          type="text"
+          value={fleetId}
+          onChange={(e) => setFleetId(e.target.value)}
+          placeholder="Fleet ID (optional)"
+          aria-label="Fleet ID"
+          className={styles.fleetIdInput}
+        />
       </header>
 
       <div ref={scrollRef} className={styles.scroll}>

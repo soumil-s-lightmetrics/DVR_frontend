@@ -21,6 +21,21 @@
   color: var(--gl-color-on-surface-subtle);
 }
 
+.fleetIdInput {
+  margin-left: auto;
+  width: 16rem;
+  border: 1px solid var(--gl-color-border);
+  border-radius: var(--gl-radius-card);
+  padding: var(--gl-space-2xs) var(--gl-space-sm);
+  font-size: 1.3rem;
+  font-family: inherit;
+  color: var(--gl-color-on-surface);
+  background: var(--gl-color-white);
+}
+.fleetIdInput::placeholder {
+  color: var(--gl-color-gray-muted);
+}
+
 .scroll {
   flex: 1;
   min-height: 0;
