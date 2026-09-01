@@ -21,8 +21,14 @@
   color: var(--gl-color-on-surface-subtle);
 }
 
-.fleetIdInput {
+.topbarInputs {
   margin-left: auto;
+  display: flex;
+  gap: var(--gl-space-sm);
+}
+
+.fleetIdInput,
+.tspIdInput {
   width: 16rem;
   border: 1px solid var(--gl-color-border);
   border-radius: var(--gl-radius-card);
@@ -32,8 +38,32 @@
   color: var(--gl-color-on-surface);
   background: var(--gl-color-white);
 }
-.fleetIdInput::placeholder {
+.fleetIdInput::placeholder,
+.tspIdInput::placeholder {
   color: var(--gl-color-gray-muted);
+}
+
+.callbackPage {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--gl-color-on-surface-subtle);
+}
+
+.loginGate {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gl-space-lg);
+}
+
+.loginGateText {
+  font-size: 1.6rem;
+  color: var(--gl-color-on-surface-subtle);
 }
 
 .scroll {

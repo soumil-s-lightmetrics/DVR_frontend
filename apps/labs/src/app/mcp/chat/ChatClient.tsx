@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "@lmlabs/ui";
 import styles from "./chat.module.css";
+import { MCP_CHAT_BACKEND_URL as BACKEND_URL, authHeaders, getAccessToken, login, logout } from "./mcpChatAuth";
 
 type ChatMessage = {
   id: string;
@@ -22,18 +23,14 @@ type SseEvent =
   | { type: "done"; usage: Record<string, number> }
   | { type: "error"; message: string };
 
-// Called directly from the browser (not through the Next.js proxy) so a slow
-// chat turn can stream past Amplify Hosting's fixed 30s SSR response timeout.
-// Auth is a short-lived, conversation-scoped token minted server-side via
-// /api/mcp-chat/conversations/[id]/stream-token - see that route and
-// mcp-trial/backend/app/stream_token.py.
-const BACKEND_URL = process.env.NEXT_PUBLIC_MCP_CHAT_BACKEND_URL;
-
 export default function ChatClient() {
+  // null = still checking sessionStorage for a token.
+  const [authed, setAuthed] = useState<boolean | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [fleetId, setFleetId] = useState("");
+  const [clientId, setClientId] = useState("");
   const [busy, setBusy] = useState(false);
   const [toolActivity, setToolActivity] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -43,10 +40,16 @@ export default function ChatClient() {
   useEffect(() => {
     if (!BACKEND_URL) {
       setInitError("NEXT_PUBLIC_MCP_CHAT_BACKEND_URL is not configured.");
+      setAuthed(false);
       return;
     }
+    setAuthed(!!getAccessToken());
+  }, []);
+
+  useEffect(() => {
+    if (!authed || !BACKEND_URL) return;
     let cancelled = false;
-    fetch("/api/mcp-chat/conversations", { method: "POST" })
+    fetch(`${BACKEND_URL}/conversations`, { method: "POST", headers: authHeaders() })
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
@@ -59,7 +62,7 @@ export default function ChatClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authed]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -85,23 +88,28 @@ export default function ChatClient() {
     let assistantAdded = false;
 
     try {
-      const tokenRes = await fetch(
-        `/api/mcp-chat/conversations/${conversationId}/stream-token`,
-        { method: "POST" },
-      );
-      const tokenData = await tokenRes.json();
-      if (!tokenRes.ok || !tokenData?.token) {
-        throw new Error(tokenData?.error || "Failed to get a stream token.");
-      }
-
       const res = await fetch(`${BACKEND_URL}/conversations/${conversationId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-mcp-stream-token": tokenData.token,
+          ...authHeaders(),
         },
-        body: JSON.stringify({ content: text, fleet_id: fleetId.trim() || undefined }),
+        body: JSON.stringify({
+          content: text,
+          fleet_id: fleetId.trim() || undefined,
+          client_id: clientId.trim() || undefined,
+        }),
       });
+
+      if (res.status === 401) {
+        logout();
+        setAuthed(false);
+        setMessages((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), role: "error", text: "Session expired — please log in again." },
+        ]);
+        return;
+      }
 
       if (!res.body) throw new Error("No response body.");
 
@@ -175,6 +183,28 @@ export default function ChatClient() {
 
   const canSend = !busy && !!conversationId && !!BACKEND_URL;
 
+  if (authed !== true) {
+    return (
+      <div className={styles.page}>
+        <header className={styles.topbar}>
+          <Button href="/mcp" variant="ghost">
+            &larr; MCP overview
+          </Button>
+          <span className={styles.topbarTitle}>Data Chat</span>
+        </header>
+        {authed === false && (
+          <div className={styles.loginGate}>
+            <p className={styles.loginGateText}>Sign in to start chatting.</p>
+            <Button onClick={login} disabled={!BACKEND_URL}>
+              Log in
+            </Button>
+          </div>
+        )}
+        {initError && <div className={styles.initError}>{initError}</div>}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
@@ -182,14 +212,35 @@ export default function ChatClient() {
           &larr; MCP overview
         </Button>
         <span className={styles.topbarTitle}>Data Chat</span>
-        <input
-          type="text"
-          value={fleetId}
-          onChange={(e) => setFleetId(e.target.value)}
-          placeholder="Fleet ID (optional)"
-          aria-label="Fleet ID"
-          className={styles.fleetIdInput}
-        />
+        <div className={styles.topbarInputs}>
+          <input
+            type="text"
+            value={fleetId}
+            onChange={(e) => setFleetId(e.target.value)}
+            placeholder="Fleet ID (optional)"
+            aria-label="Fleet ID"
+            className={styles.fleetIdInput}
+          />
+          <input
+            type="text"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            placeholder="TSP ID (optional)"
+            aria-label="TSP ID"
+            className={styles.tspIdInput}
+          />
+          <Button
+            variant="ghost"
+            onClick={() => {
+              logout();
+              setAuthed(false);
+              setConversationId(null);
+              setMessages([]);
+            }}
+          >
+            Log out
+          </Button>
+        </div>
       </header>
 
       <div ref={scrollRef} className={styles.scroll}>
