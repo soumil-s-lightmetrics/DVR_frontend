@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowUp } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowUp, Plus } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "@lmlabs/ui";
@@ -46,23 +46,26 @@ export default function ChatClient() {
     setAuthed(!!getAccessToken());
   }, []);
 
+  const startNewConversation = useCallback(async () => {
+    if (!BACKEND_URL) return;
+    setConversationId(null);
+    setMessages([]);
+    setToolActivity(null);
+    setInitError(null);
+    try {
+      const res = await fetch(`${BACKEND_URL}/conversations`, { method: "POST", headers: authHeaders() });
+      const data = await res.json();
+      if (data?.id) setConversationId(data.id);
+      else setInitError(data?.error ?? "Failed to start a conversation.");
+    } catch {
+      setInitError("Failed to reach the chat service.");
+    }
+  }, []);
+
   useEffect(() => {
     if (!authed || !BACKEND_URL) return;
-    let cancelled = false;
-    fetch(`${BACKEND_URL}/conversations`, { method: "POST", headers: authHeaders() })
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        if (data?.id) setConversationId(data.id);
-        else setInitError(data?.error ?? "Failed to start a conversation.");
-      })
-      .catch(() => {
-        if (!cancelled) setInitError("Failed to reach the chat service.");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [authed]);
+    startNewConversation();
+  }, [authed, startNewConversation]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -213,6 +216,10 @@ export default function ChatClient() {
         </Button>
         <span className={styles.topbarTitle}>Data Chat</span>
         <div className={styles.topbarInputs}>
+          <Button variant="outline" onClick={startNewConversation} disabled={busy}>
+            <Plus size={16} />
+            New chat
+          </Button>
           <input
             type="text"
             value={fleetId}
