@@ -190,10 +190,7 @@ export default function ChatClient() {
     return (
       <div className={styles.page}>
         <header className={styles.topbar}>
-          <Button href="/mcp" variant="ghost">
-            &larr; MCP overview
-          </Button>
-          <span className={styles.topbarTitle}>Data Chat</span>
+          <span className={styles.topbarTitle}>The Assistant</span>
         </header>
         {authed === false && (
           <div className={styles.loginGate}>
@@ -211,10 +208,7 @@ export default function ChatClient() {
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
-        <Button href="/mcp" variant="ghost">
-          &larr; MCP overview
-        </Button>
-        <span className={styles.topbarTitle}>Data Chat</span>
+        <span className={styles.topbarTitle}>The Assistant</span>
         <div className={styles.topbarInputs}>
           <Button variant="outline" onClick={startNewConversation} disabled={busy}>
             <Plus size={16} />
@@ -253,7 +247,7 @@ export default function ChatClient() {
       <div ref={scrollRef} className={styles.scroll}>
         {messages.length === 0 ? (
           <div className={styles.empty}>
-            <h1 className={styles.emptyTitle}>Ask about your data</h1>
+            <h1 className={styles.emptyTitle}>Ask the Assistant</h1>
             <p className={styles.emptySubtitle}>
               Query fleets, drivers, and trends in plain English — answers are backed by live
               tool calls, not guesses.
@@ -304,7 +298,7 @@ export default function ChatClient() {
               }
             }}
             disabled={!canSend}
-            placeholder="Ask about your data…"
+            placeholder="Ask the Assistant…"
             className={styles.textarea}
           />
           <button
