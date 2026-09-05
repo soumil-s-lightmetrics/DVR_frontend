@@ -15,10 +15,26 @@ const MCP_URL = "/mcp";
 // Talk to Data links out to the existing RideView reports dashboard rather than
 // a page inside this app.
 const TALK_TO_DATA_URL = "https://dashboard.lightmetrics.co/reports?tab=overview";
-// Agentic LISA is embedded (iframed) under this app, like Video Intelligence.
-const AGENTIC_LISA_URL = "/agentic-lisa";
+const MCP_CHAT_URL = "/mcp/chat";
 
 const FEATURED: ExperimentCardProps[] = [
+  {
+    category: "create",
+    title: "AI Assistant",
+    subtitle: "Just ask your fleet data anything.",
+    description: "A conversational assistant for discovering what matters — safety, coaching, camera health, and more — without digging through dashboards.",
+    cta: "Try it now",
+    href: MCP_CHAT_URL,
+    target: "_blank",
+    media: (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/experiments/agentic-lisa.jpg"
+        alt="Conversational assistant answering fleet data questions"
+        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
+      />
+    ),
+  },
   {
     category: "create",
     title: "Agentic DVR",
@@ -38,7 +54,7 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "explore",
-    title: "Video Search",
+    title: "Smart Video Search",
     subtitle: "Describe it, and find it.",
     description: "Video RAG that surfaces the clips you're looking for from a plain-language description — no filters, no tags.",
     cta: "Try it now",
@@ -72,24 +88,7 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "create",
-    title: "Agentic LISA",
-    subtitle: "Just ask your fleet data anything.",
-    description: "A conversational assistant for discovering what matters — safety, coaching, camera health, and more — without digging through dashboards.",
-    cta: "Try it now",
-    href: AGENTIC_LISA_URL,
-    target: "_blank",
-    media: (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src="/experiments/agentic-lisa.jpg"
-        alt="Conversational assistant answering fleet data questions"
-        className="h-full w-full object-contain border-b border-[var(--gl-color-border)] bg-white"
-      />
-    ),
-  },
-  {
-    category: "create",
-    title: "Breaking the Silos",
+    title: "Bring your own LLM",
     subtitle: "Your data, in the AI tool you already use.",
     description: "RideView MCP lets your users bring their favorite AI assistant to their fleet data.",
     cta: "Learn more",
@@ -106,7 +105,7 @@ const FEATURED: ExperimentCardProps[] = [
   },
   {
     category: "create",
-    title: "Talk to Data",
+    title: "Report Builder",
     subtitle: "Build your own reports",
     description: "Create custom reports from your fleet data using plain-language.",
     cta: "Try it now",

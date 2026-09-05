@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowUp, Plus } from "lucide-react";
+import { ArrowUp, ChevronDown, FilePlus2, LogOut, PanelLeft, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Button } from "@lmlabs/ui";
 import styles from "./chat.module.css";
 import { MCP_CHAT_BACKEND_URL as BACKEND_URL, authHeaders, getAccessToken, login, logout } from "./mcpChatAuth";
 
@@ -23,19 +22,40 @@ type SseEvent =
   | { type: "done"; usage: Record<string, number> }
   | { type: "error"; message: string };
 
+const TSP_OPTIONS = ["lmpresales", "lmdemotsp", "lmqatesting1", "lmqatesting2", "kynection", "mactrackau"];
+
+// Local-only escape hatch: `next dev` inlines NODE_ENV as "development" (and
+// only that), so this can never take effect in a real build/deploy - skips
+// the Cognito PKCE login gate so the chat UI is usable without it locally
+// (the local backend's own DISABLE_AUTH already ignores the bearer token).
+const SKIP_LOGIN = process.env.NODE_ENV === "development";
+
+type FleetSuggestion = { fleetId: string; fleetName: string };
+
+function fleetLabel(item: FleetSuggestion): string {
+  return `${item.fleetName} (${item.fleetId})`;
+}
+
 export default function ChatClient() {
   // null = still checking sessionStorage for a token.
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [fleetId, setFleetId] = useState("");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [clientId, setClientId] = useState("");
+  const [fleetId, setFleetId] = useState("");
+  const [fleetQuery, setFleetQuery] = useState("");
+  const [fleetOpen, setFleetOpen] = useState(false);
+  const [fleetLoading, setFleetLoading] = useState(false);
+  const [fleetSuggestions, setFleetSuggestions] = useState<FleetSuggestion[]>([]);
   const [busy, setBusy] = useState(false);
   const [toolActivity, setToolActivity] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fleetBoxRef = useRef<HTMLDivElement>(null);
+  const fleetDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!BACKEND_URL) {
@@ -43,7 +63,7 @@ export default function ChatClient() {
       setAuthed(false);
       return;
     }
-    setAuthed(!!getAccessToken());
+    setAuthed(SKIP_LOGIN || !!getAccessToken());
   }, []);
 
   const startNewConversation = useCallback(async () => {
@@ -77,6 +97,47 @@ export default function ChatClient() {
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, [input]);
+
+  // Close the fleet suggestion panel on an outside click.
+  useEffect(() => {
+    function onPointerDown(e: MouseEvent) {
+      if (fleetBoxRef.current && !fleetBoxRef.current.contains(e.target as Node)) {
+        setFleetOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
+
+  useEffect(() => {
+    if (!fleetOpen || !clientId || !BACKEND_URL) return;
+    if (fleetDebounceRef.current) clearTimeout(fleetDebounceRef.current);
+    fleetDebounceRef.current = setTimeout(async () => {
+      setFleetLoading(true);
+      try {
+        const params = new URLSearchParams({ client_id: clientId, q: fleetQuery });
+        const res = await fetch(`${BACKEND_URL}/fleets/autocomplete?${params}`, {
+          headers: authHeaders(),
+        });
+        const data = await res.json();
+        setFleetSuggestions(Array.isArray(data?.rows) ? data.rows : []);
+      } catch {
+        setFleetSuggestions([]);
+      } finally {
+        setFleetLoading(false);
+      }
+    }, 300);
+    return () => {
+      if (fleetDebounceRef.current) clearTimeout(fleetDebounceRef.current);
+    };
+  }, [fleetQuery, fleetOpen, clientId]);
+
+  function selectFleet(item: FleetSuggestion) {
+    setFleetId(item.fleetId);
+    setFleetQuery(fleetLabel(item));
+    setFleetOpen(false);
+    setFleetSuggestions([]);
+  }
 
   async function handleSend() {
     const text = input.trim();
@@ -189,17 +250,19 @@ export default function ChatClient() {
   if (authed !== true) {
     return (
       <div className={styles.page}>
-        <header className={styles.topbar}>
-          <span className={styles.topbarTitle}>The Assistant</span>
-        </header>
-        {authed === false && (
-          <div className={styles.loginGate}>
-            <p className={styles.loginGateText}>Sign in to start chatting.</p>
-            <Button onClick={login} disabled={!BACKEND_URL}>
-              Log in
-            </Button>
-          </div>
-        )}
+        <div className={styles.loginGate}>
+          <span className={styles.sidebarTitleText}>
+            Ask AI <span className={styles.betaBadge}>BETA</span>
+          </span>
+          {authed === false && (
+            <>
+              <p className={styles.loginGateText}>Sign in to start chatting.</p>
+              <button className={styles.primaryButton} onClick={login} disabled={!BACKEND_URL}>
+                Log in
+              </button>
+            </>
+          )}
+        </div>
         {initError && <div className={styles.initError}>{initError}</div>}
       </div>
     );
@@ -207,31 +270,32 @@ export default function ChatClient() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.topbar}>
-        <span className={styles.topbarTitle}>The Assistant</span>
-        <div className={styles.topbarInputs}>
-          <Button variant="outline" onClick={startNewConversation} disabled={busy}>
-            <Plus size={16} />
-            New chat
-          </Button>
-          <input
-            type="text"
-            value={fleetId}
-            onChange={(e) => setFleetId(e.target.value)}
-            placeholder="Fleet ID (optional)"
-            aria-label="Fleet ID"
-            className={styles.fleetIdInput}
-          />
-          <input
-            type="text"
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-            placeholder="TSP ID (optional)"
-            aria-label="TSP ID"
-            className={styles.tspIdInput}
-          />
-          <Button
-            variant="ghost"
+      <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ""}`}>
+        <div className={styles.sidebarHeader}>
+          <span className={styles.sidebarTitleText}>
+            Ask AI <span className={styles.betaBadge}>BETA</span>
+          </span>
+          <button
+            className={styles.iconButton}
+            onClick={() => setSidebarCollapsed((v) => !v)}
+            aria-label="Toggle sidebar"
+          >
+            <PanelLeft size={18} />
+          </button>
+        </div>
+
+        <button className={styles.navButton} onClick={startNewConversation} disabled={busy}>
+          <FilePlus2 size={18} />
+          <span>New Chat</span>
+        </button>
+
+        <div className={styles.sidebarDivider} />
+
+        <div className={styles.sidebarSectionLabel}>Chat History</div>
+
+        <div className={styles.sidebarFooter}>
+          <button
+            className={styles.navButton}
             onClick={() => {
               logout();
               setAuthed(false);
@@ -239,76 +303,140 @@ export default function ChatClient() {
               setMessages([]);
             }}
           >
-            Log out
-          </Button>
+            <LogOut size={18} />
+            <span>Log out</span>
+          </button>
         </div>
-      </header>
+      </aside>
 
-      <div ref={scrollRef} className={styles.scroll}>
-        {messages.length === 0 ? (
-          <div className={styles.empty}>
-            <h1 className={styles.emptyTitle}>Ask the Assistant</h1>
-            <p className={styles.emptySubtitle}>
-              Query fleets, drivers, and trends in plain English — answers are backed by live
-              tool calls, not guesses.
-            </p>
+      <div className={styles.main}>
+        <header className={styles.topbar}>
+          <div className={styles.selectTsp}>
+            <select
+              value={clientId}
+              onChange={(e) => {
+                setClientId(e.target.value);
+                setFleetId("");
+                setFleetQuery("");
+              }}
+              aria-label="TSP"
+            >
+              <option value="">TSP</option>
+              {TSP_OPTIONS.map((tsp) => (
+                <option key={tsp} value={tsp}>
+                  {tsp}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={16} className={styles.selectChevron} />
           </div>
-        ) : (
-          <div className={styles.thread}>
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`${styles.turn} ${m.role === "user" ? styles.turnUser : ""}`}
-              >
-                {m.role === "user" && <div className={styles.bubbleUser}>{m.text}</div>}
-                {m.role === "error" && <div className={styles.bubbleError}>{m.text}</div>}
-                {m.role === "assistant" && (
-                  <>
-                    <div className={styles.assistantBody}>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
-                    </div>
-                    {m.usage && <div className={styles.usage}>{m.usage}</div>}
-                  </>
+
+          <div className={styles.fleetAutocomplete} ref={fleetBoxRef}>
+            <input
+              type="text"
+              value={fleetQuery}
+              onChange={(e) => {
+                setFleetQuery(e.target.value);
+                setFleetId("");
+              }}
+              onFocus={() => setFleetOpen(true)}
+              placeholder={clientId ? "Fleet" : "Select TSP first"}
+              aria-label="Fleet"
+              disabled={!clientId}
+              className={styles.fleetInput}
+            />
+            <ChevronDown size={16} className={styles.selectChevron} />
+            {fleetOpen && clientId && (
+              <div className={styles.fleetSuggestions}>
+                {fleetLoading && <div className={styles.fleetStatus}>Searching…</div>}
+                {!fleetLoading && fleetSuggestions.length === 0 && (
+                  <div className={styles.fleetStatus}>No fleets found.</div>
                 )}
-              </div>
-            ))}
-            {toolActivity && (
-              <div className={styles.toolActivity}>
-                <span className={styles.toolDot} />
-                {toolActivity}
+                {!fleetLoading &&
+                  fleetSuggestions.map((item) => (
+                    <button
+                      key={item.fleetId}
+                      type="button"
+                      className={styles.fleetSuggestionItem}
+                      onClick={() => selectFleet(item)}
+                    >
+                      <span>{fleetLabel(item)}</span>
+                    </button>
+                  ))}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </header>
 
-      {initError && <div className={styles.initError}>{initError}</div>}
+        <div ref={scrollRef} className={styles.scroll}>
+          {messages.length === 0 ? (
+            <div className={styles.empty}>
+              <div className={styles.emptyIcon}>
+                <Sparkles size={22} />
+              </div>
+              <h1 className={styles.emptyTitle}>AI Assistant</h1>
+              <p className={styles.emptySubtitle}>
+                Hello! I&apos;m your AI assistant, here to answer your questions using our
+                knowledge base and live data on safety, diagnostics, and coaching.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.thread}>
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`${styles.turn} ${m.role === "user" ? styles.turnUser : ""}`}
+                >
+                  {m.role === "user" && <div className={styles.bubbleUser}>{m.text}</div>}
+                  {m.role === "error" && <div className={styles.bubbleError}>{m.text}</div>}
+                  {m.role === "assistant" && (
+                    <>
+                      <div className={styles.assistantBody}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
+                      </div>
+                      {m.usage && <div className={styles.usage}>{m.usage}</div>}
+                    </>
+                  )}
+                </div>
+              ))}
+              {toolActivity && (
+                <div className={styles.toolActivity}>
+                  <span className={styles.toolDot} />
+                  {toolActivity}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-      <div className={styles.composerWrap}>
-        <div className={styles.composer}>
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            disabled={!canSend}
-            placeholder="Ask the Assistant…"
-            className={styles.textarea}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!canSend || !input.trim()}
-            aria-label="Send message"
-            className={styles.sendButton}
-          >
-            <ArrowUp size={20} />
-          </button>
+        {initError && <div className={styles.initError}>{initError}</div>}
+
+        <div className={styles.composerWrap}>
+          <div className={styles.composer}>
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              disabled={!canSend}
+              placeholder="Ask anything or type @ to filter..."
+              className={styles.textarea}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!canSend || !input.trim()}
+              aria-label="Send message"
+              className={styles.sendButton}
+            >
+              <ArrowUp size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
