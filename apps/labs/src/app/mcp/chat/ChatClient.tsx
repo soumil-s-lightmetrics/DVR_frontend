@@ -137,11 +137,12 @@ export default function ChatClient() {
     setFleetQuery(fleetLabel(item));
     setFleetOpen(false);
     setFleetSuggestions([]);
+    startNewConversation();
   }
 
   async function handleSend() {
     const text = input.trim();
-    if (!text || !conversationId || busy || !BACKEND_URL) return;
+    if (!text || !conversationId || busy || !BACKEND_URL || !clientId || !fleetId) return;
 
     setInput("");
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", text }]);
@@ -245,7 +246,8 @@ export default function ChatClient() {
     }
   }
 
-  const canSend = !busy && !!conversationId && !!BACKEND_URL;
+  const needsSelection = !clientId || !fleetId;
+  const canSend = !busy && !!conversationId && !!BACKEND_URL && !needsSelection;
 
   if (authed !== true) {
     return (
@@ -318,6 +320,7 @@ export default function ChatClient() {
                 setClientId(e.target.value);
                 setFleetId("");
                 setFleetQuery("");
+                startNewConversation();
               }}
               aria-label="TSP"
             >
@@ -379,6 +382,9 @@ export default function ChatClient() {
                 Hello! I&apos;m your AI assistant, here to answer your questions using our
                 knowledge base and live data on safety, diagnostics, and coaching.
               </p>
+              {needsSelection && (
+                <p className={styles.emptySubtitle}>Select a TSP and fleet above to start chatting.</p>
+              )}
             </div>
           ) : (
             <div className={styles.thread}>
@@ -425,7 +431,9 @@ export default function ChatClient() {
                 }
               }}
               disabled={!canSend}
-              placeholder="Ask anything or type @ to filter..."
+              placeholder={
+                needsSelection ? "Select a TSP and fleet to start chatting" : "Ask anything or type @ to filter..."
+              }
               className={styles.textarea}
             />
             <button
