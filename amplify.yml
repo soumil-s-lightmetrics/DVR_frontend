@@ -1,0 +1,23 @@
+# AWS Amplify Hosting build spec (Web Compute / SSR).
+#
+# No environment variables are required: a production build talks to the
+# Railway backend by default (see next.config.mjs). To point a branch
+# somewhere else, set BACKEND_URL and NEXT_PUBLIC_WS_URL in
+# App settings -> Environment variables, then rebuild.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
