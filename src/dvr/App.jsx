@@ -448,6 +448,10 @@ export default function App() {
   }
 
   function onStartDvr(type) {
+    // Belt and braces: the chips are already disabled in this case, but the
+    // trip-row popup shares this handler, and a trip can expire between a
+    // reload of the table and the click.
+    if (dvrRequest.disabled) return
     setMessages((m) => m.filter((x) => x.kind !== 'trip-type-prompt'))
     const tripEntry = collectedRef.current.find((e) => e.option === 'Trips')
     const selectedTrip = tripEntry ? currentTrips.find((t) => t.tripId === tripEntry.selectedItem.tripId) : null
@@ -525,6 +529,9 @@ export default function App() {
     setMessages([])
     setSummary('')
     setHighlight({ tripId: null, n: 0 })
+    // The chat input re-applies any seed with n > 0 when it mounts, so a seed
+    // left over from this thread would reappear in the next one's input.
+    setChatSeed({ text: '', n: 0 })
     setThreadId('t_' + Date.now())
     setView('landing')
   }
@@ -551,6 +558,22 @@ export default function App() {
     () => (selectedTripId != null ? currentTrips.find((t) => t.tripId === selectedTripId) : null),
     [selectedTripId, currentTrips],
   )
+
+  // Footage past its retention window can't be requested, so the clip /
+  // timelapse chips are greyed out rather than left to fail at the backend.
+  // Same rule the trip table already uses for its "No DVR" button
+  // (CanvasPanel): only an explicit 'expired' counts, never a missing status.
+  const dvrRequest = useMemo(() => {
+    if (selectedTrip) {
+      return selectedTrip.dvr_status === 'expired'
+        ? { disabled: true, reason: 'DVR footage for the selected trip has expired.' }
+        : { disabled: false, reason: '' }
+    }
+    if (currentTrips.length > 0 && currentTrips.every((t) => t.dvr_status === 'expired')) {
+      return { disabled: true, reason: 'DVR footage has expired for all of these trips.' }
+    }
+    return { disabled: false, reason: '' }
+  }, [selectedTrip, currentTrips])
 
   const commonPill = {
     fleetData,
@@ -609,7 +632,7 @@ export default function App() {
     return { start: trip.startTimeUTC || null, end: trip.lastPinged || null, driverName: trip.driverName || null }
   }
 
-  const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg, getTripBounds }
+  const msgHandlers = { onStartDvr, onSubmitTimestamp, onConfirmDvr, onDismiss: removeMsg, getTripBounds, dvrRequest }
   const tripTypeMsg = messages.find((m) => m.kind === 'trip-type-prompt')
 
   return (

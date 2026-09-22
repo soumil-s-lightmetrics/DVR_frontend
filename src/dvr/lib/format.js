@@ -60,6 +60,13 @@ export function inputValueToClip(val) {
   return val.length === 16 ? val.replace('T', ' ') + ':00' : val.replace('T', ' ')
 }
 
+// Date -> 'YYYY-MM-DDTHH:MM' for <input type="datetime-local">, which has no
+// timezone and always means local wall-clock time. Built from the local
+// getters on purpose: toISOString() would shift the value by the UTC offset.
+export function dateToInputValue(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 export function addMinutesToClip(clipStr, minutes) {
   const d = new Date(clipToInputValue(clipStr))
   if (isNaN(d.getTime())) return clipStr

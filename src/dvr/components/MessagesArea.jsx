@@ -27,7 +27,14 @@ export default function MessagesArea({ active, messages, typing, handlers }) {
           case 'bot':
             return <BotMessage key={m.id} text={m.text} />
           case 'action-chips':
-            return <ActionChips key={m.id} onStartDvr={handlers.onStartDvr} />
+            return (
+              <ActionChips
+                key={m.id}
+                onStartDvr={handlers.onStartDvr}
+                disabled={handlers.dvrRequest?.disabled}
+                reason={handlers.dvrRequest?.reason}
+              />
+            )
           case 'trip-type-prompt':
             // Rendered as an attention-grabbing popup pinned to the top of
             // the chat panel instead (see App.jsx), not inline here.

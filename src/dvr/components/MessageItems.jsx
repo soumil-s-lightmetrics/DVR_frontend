@@ -10,6 +10,7 @@ import {
   diffMinutesClip,
   CATEGORY_ICON,
   capFirst,
+  dateToInputValue,
 } from '../lib/format.js'
 
 // ── plain chat turns ────────────────────────────────────────────────────
@@ -69,16 +70,31 @@ export function TypingIndicator() {
 }
 
 // ── clip / timelapse chips ──────────────────────────────────────────────
-export function ActionChips({ large, onStartDvr }) {
+// `disabled` means the footage is past its retention window, so neither
+// request can succeed. The reason is spelled out under the chips rather than
+// only in a tooltip, which never appears on touch devices.
+export function ActionChips({ large, onStartDvr, disabled, reason }) {
   return (
-    <div className={`action-chips${large ? ' action-chips-lg' : ''}`}>
-      <button className="action-chip" onClick={() => onStartDvr('clip')}>
-        <MIcon name="videocam" /> Request a DVR clip
-      </button>
-      <button className="action-chip" onClick={() => onStartDvr('timelapse')}>
-        <MIcon name="timelapse" /> Request a timelapse
-      </button>
-    </div>
+    <>
+      <div className={`action-chips${large ? ' action-chips-lg' : ''}`}>
+        <button className="action-chip" onClick={() => onStartDvr('clip')} disabled={disabled} title={reason || undefined}>
+          <MIcon name="videocam" /> Request a DVR clip
+        </button>
+        <button
+          className="action-chip"
+          onClick={() => onStartDvr('timelapse')}
+          disabled={disabled}
+          title={reason || undefined}
+        >
+          <MIcon name="timelapse" /> Request a timelapse
+        </button>
+      </div>
+      {disabled && reason && (
+        <div className="action-chips-note">
+          <MIcon name="info" size={13} /> {reason}
+        </div>
+      )}
+    </>
   )
 }
 
@@ -106,9 +122,47 @@ export function TripTypePopup({ onSelect, onClose }) {
 }
 
 // ── date-range interrupt ────────────────────────────────────────────────
+// Typing both ends by hand is the slow path for the common "last N days"
+// question, so these fill the two fields instead: To = now, From = now minus
+// the preset. The fields stay editable afterwards — a preset is a starting
+// point, not a mode.
+const RANGE_PRESETS = [
+  { label: '3 days', days: 3 },
+  { label: '6 days', days: 6 },
+  { label: '9 days', days: 9 },
+  { label: '12 days', days: 12 },
+  { label: '15 days', days: 15 },
+  { label: '1 month', months: 1 },
+]
+
 export function TimestampInterrupt({ onSubmit, onCancel }) {
   const [start, setStart] = useState('')
   const [end, setEnd] = useState('')
+  // Only drives the highlight; any manual edit clears it.
+  const [preset, setPreset] = useState(null)
+
+  function applyPreset(p) {
+    const to = new Date()
+    const from = new Date(to)
+    // setMonth handles short months itself: 31 March minus a month is 28 Feb
+    // (or 29 in a leap year), never an invalid date.
+    if (p.months) from.setMonth(from.getMonth() - p.months)
+    else from.setDate(from.getDate() - p.days)
+    setStart(dateToInputValue(from))
+    setEnd(dateToInputValue(to))
+    setPreset(p.label)
+  }
+
+  const editStart = (v) => {
+    setStart(v)
+    setPreset(null)
+  }
+
+  const editEnd = (v) => {
+    setEnd(v)
+    setPreset(null)
+  }
+
   return (
     <div className="interrupt-wrap">
       <div className="interrupt-card">
@@ -116,14 +170,27 @@ export function TimestampInterrupt({ onSubmit, onCancel }) {
           <div className="ic-dot" style={{ background: 'var(--amber)' }}></div> Select date range
         </div>
         <div className="interrupt-card-body">
+          <div className="ts-presets">
+            <span className="ts-presets-label">Last</span>
+            {RANGE_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                className={`ts-preset${preset === p.label ? ' ts-preset-on' : ''}`}
+                onClick={() => applyPreset(p)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
           <div className="ts-grid">
             <div>
               <div className="ts-label">From</div>
-              <input className="ts-input" type="datetime-local" value={start} onChange={(e) => setStart(e.target.value)} />
+              <input className="ts-input" type="datetime-local" value={start} onChange={(e) => editStart(e.target.value)} />
             </div>
             <div>
               <div className="ts-label">To</div>
-              <input className="ts-input" type="datetime-local" value={end} onChange={(e) => setEnd(e.target.value)} />
+              <input className="ts-input" type="datetime-local" value={end} onChange={(e) => editEnd(e.target.value)} />
             </div>
           </div>
           <div className="btn-row">
