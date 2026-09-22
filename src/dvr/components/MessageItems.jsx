@@ -71,30 +71,25 @@ export function TypingIndicator() {
 
 // ── clip / timelapse chips ──────────────────────────────────────────────
 // `disabled` means the footage is past its retention window, so neither
-// request can succeed. The reason is spelled out under the chips rather than
-// only in a tooltip, which never appears on touch devices.
+// request can succeed. Offering nothing beats offering a dead button: the
+// chips are replaced by the reason rather than shown greyed out beside it.
 export function ActionChips({ large, onStartDvr, disabled, reason }) {
-  return (
-    <>
-      <div className={`action-chips${large ? ' action-chips-lg' : ''}`}>
-        <button className="action-chip" onClick={() => onStartDvr('clip')} disabled={disabled} title={reason || undefined}>
-          <MIcon name="videocam" /> Request a DVR clip
-        </button>
-        <button
-          className="action-chip"
-          onClick={() => onStartDvr('timelapse')}
-          disabled={disabled}
-          title={reason || undefined}
-        >
-          <MIcon name="timelapse" /> Request a timelapse
-        </button>
+  if (disabled) {
+    return (
+      <div className="action-chips-note">
+        <MIcon name="info" size={15} /> {reason || 'DVR footage has expired.'}
       </div>
-      {disabled && reason && (
-        <div className="action-chips-note">
-          <MIcon name="info" size={13} /> {reason}
-        </div>
-      )}
-    </>
+    )
+  }
+  return (
+    <div className={`action-chips${large ? ' action-chips-lg' : ''}`}>
+      <button className="action-chip" onClick={() => onStartDvr('clip')}>
+        <MIcon name="videocam" /> Request a DVR clip
+      </button>
+      <button className="action-chip" onClick={() => onStartDvr('timelapse')}>
+        <MIcon name="timelapse" /> Request a timelapse
+      </button>
+    </div>
   )
 }
 

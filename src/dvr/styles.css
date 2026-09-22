@@ -124,9 +124,9 @@ html,body{height:100%;font-family:'Inter',sans-serif;font-size:14px;color:var(--
 .action-chips{display:flex;gap:8px;padding:8px 20px;flex-wrap:wrap}
 .action-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--purple);color:var(--purple);font-size:12px;font-weight:500;padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .15s;font-family:inherit;background:var(--white)}
 .action-chip:hover{background:var(--purple-dim)}
-.action-chip:disabled{border-color:var(--border);color:var(--text-tri);background:var(--surface);cursor:not-allowed;opacity:.65}
-.action-chip:disabled:hover{background:var(--surface)}
-.action-chips-note{display:flex;align-items:center;gap:5px;padding:0 20px;margin-top:2px;font-size:11px;color:var(--text-tri)}
+/* Font size/line-height deliberately match .msg-text — this line stands in
+   for the chips as the assistant's answer, so it reads at message size. */
+.action-chips-note{display:flex;align-items:center;gap:6px;padding:8px 20px;font-size:13px;line-height:1.5;color:var(--text-tri)}
 /* the "which format?" prompt right after picking a trip needs to stand out from
    the earlier, generic chips — bigger, filled, with a little shadow */
 .action-chips-lg{padding:10px 20px 16px}
