@@ -94,19 +94,19 @@ export default function TopBar({ connected, onLoadFleet, onNewThread, onIdsChang
             {errorMsg}
           </span>
         )}
-        <input
-          className="fleet-input"
-          placeholder="Fleet ID…"
-          value={fleetId}
-          onChange={(e) => editId(setFleetId)(e.target.value)}
-          onKeyDown={onFieldKeyDown}
-        />
         <ClientIdInput
           value={clientId}
           onChange={editId(setClientId)}
           onEnter={() => {
             if (canLoad) handleLoad()
           }}
+        />
+        <input
+          className="fleet-input"
+          placeholder="Fleet ID…"
+          value={fleetId}
+          onChange={(e) => editId(setFleetId)(e.target.value)}
+          onKeyDown={onFieldKeyDown}
         />
         <button className="tb-btn tb-btn-p" onClick={() => handleLoad()} disabled={!canLoad}>
           {loadLabel}
